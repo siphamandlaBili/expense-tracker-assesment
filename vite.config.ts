@@ -1,9 +1,30 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, type Plugin } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import en from "./src/i18n/locales/en.json" with { type: "json" };
+
+const escapeHtml = (text: string) =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+// The page title and meta description must be in the HTML itself (crawlers
+// read it before any JS runs), but their text lives with the rest of the
+// copy in en.json; this fills in index.html's placeholders from there.
+function htmlMeta(): Plugin {
+  return {
+    name: "html-meta",
+    transformIndexHtml: (html) =>
+      html
+        .replace("%META_TITLE%", escapeHtml(en.meta.title))
+        .replace("%META_DESCRIPTION%", escapeHtml(en.meta.description)),
+  };
+}
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), htmlMeta()],
   test: {
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],

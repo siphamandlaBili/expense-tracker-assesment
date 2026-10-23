@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Moya Bank - Spending Insights",
+    "description": "See where your money goes with Moya Bank Spending Insights: monthly trends, spending by category, every transaction and your budget goals in one place."
+  },
   "brand": {
     "logoAlt": "Moya Bank logo"
   },
@@ -16,7 +20,7 @@
   },
   "hero": {
     "title": "Understand your spending. Take control.",
-    "description": "The Customer Spending Insights Dashboard gives you a clearer view of your money — your spending trends, categories, transactions and goals — all in one place.",
+    "description": "The Customer Spending Insights Dashboard gives you a clearer view of your money ,your spending trends, categories, transactions and goals all in one place.",
     "signInCta": "Sign in to continue",
     "exploreCta": "Explore features",
     "imageAlt": "Moya Bank app showing a spending overview next to a bank card"
