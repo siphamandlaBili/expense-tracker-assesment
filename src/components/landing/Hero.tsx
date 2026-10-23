@@ -1,6 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { LuArrowRight } from "react-icons/lu";
-import heroImage from "../../assets/Hero.png";
+import hero640Avif from "../../assets/hero-640.avif";
+import hero640Webp from "../../assets/hero-640.webp";
+import hero960Avif from "../../assets/hero-960.avif";
+import hero960Webp from "../../assets/hero-960.webp";
+import hero1280Avif from "../../assets/hero-1280.avif";
+import hero1280Webp from "../../assets/hero-1280.webp";
+
+// Full width on small screens, half the screen from lg (matches the classes below).
+const HERO_SIZES = "(min-width: 1024px) 50vw, 100vw";
 
 type HeroProps = {
   onSignIn: () => void;
@@ -40,11 +48,23 @@ export function Hero({ onSignIn }: HeroProps) {
           </div>
         </div>
 
-        <img
-          src={heroImage}
-          alt={t("hero.imageAlt")}
-          className="w-full rounded-3xl object-cover lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-1/2 lg:rounded-none lg:[mask-image:linear-gradient(to_right,transparent,black_18%)]"
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcSet={`${hero640Avif} 640w, ${hero960Avif} 960w, ${hero1280Avif} 1280w`}
+            sizes={HERO_SIZES}
+          />
+          <img
+            src={hero1280Webp}
+            srcSet={`${hero640Webp} 640w, ${hero960Webp} 960w, ${hero1280Webp} 1280w`}
+            sizes={HERO_SIZES}
+            width={1536}
+            height={1024}
+            fetchPriority="high"
+            alt={t("hero.imageAlt")}
+            className="w-full rounded-3xl object-cover lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-1/2 lg:rounded-none lg:[mask-image:linear-gradient(to_right,transparent,black_18%)]"
+          />
+        </picture>
       </div>
     </section>
   );

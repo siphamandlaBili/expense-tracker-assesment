@@ -10,7 +10,7 @@ import {
   LuX,
 } from "react-icons/lu";
 import { NavLink } from "react-router";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.webp";
 
 const DASHBOARD_LINKS = [
   { to: "/dashboard", key: "dashboard.nav.overview", icon: LuHouse, end: true },
@@ -40,6 +40,8 @@ function SidebarContent({ onNavigate, onSignOut }: SidebarContentProps) {
     <div className="flex h-full flex-col px-4 py-6">
       <img
         src={logo}
+        width={525}
+        height={96}
         alt={t("brand.logoAlt")}
         className="mb-8 h-7 w-auto self-start px-2"
       />
