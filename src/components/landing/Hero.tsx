@@ -29,7 +29,6 @@ export function Hero({ onSignIn }: HeroProps) {
               className="inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3.5 font-medium text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary-dark"
             >
               {t("hero.signInCta")}
-              <LuArrowRight className="size-5" aria-hidden />
             </button>
             <a
               href="#features"

@@ -32,13 +32,270 @@
     "showPin": "Show PIN",
     "hidePin": "Hide PIN",
     "submit": "Sign in",
+    "submitting": "Signing in…",
     "close": "Close sign in",
     "noAccount": "Don't have an account?",
     "errors": {
       "accountNumberRequired": "Please enter your account number.",
       "accountNumberInvalid": "Account number must be exactly 14 digits.",
       "pinRequired": "Please enter your PIN.",
-      "pinInvalid": "PIN must be exactly 5 digits."
+      "pinInvalid": "PIN must be exactly 5 digits.",
+      "invalidCredentials": "Incorrect account number or PIN. Please try again.",
+      "generic": "We couldn't sign you in right now. Please try again."
+    }
+  },
+  "dashboard": {
+    "nav": {
+      "label": "Dashboard",
+      "overview": "Overview",
+      "spending": "Spending",
+      "transactions": "Transactions",
+      "goals": "Goals",
+      "profile": "Profile",
+      "signOut": "Sign out",
+      "openMenu": "Open navigation",
+      "closeMenu": "Close navigation"
+    },
+    "topBar": {
+      "notifications": "Notifications",
+      "account": "Signed in as {{name}}",
+      "accountMenu": "Account",
+      "noNotifications": "No notifications"
+    },
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}",
+      "subtitle": "Here's your spending overview for your Moya Bank account."
+    },
+    "accountType": {
+      "label": "Account type",
+      "premium": "Premium Account",
+      "standard": "Standard Account",
+      "business": "Business Account"
+    },
+    "stats": {
+      "heading": "Last 30 days at a glance",
+      "totalSpent": "Total spent",
+      "transactionCount": "Transaction count",
+      "averageTransaction": "Average transaction",
+      "spendingChange": "Spending change",
+      "vsPrevious": "vs. previous 30 days",
+      "perTransaction": "Per transaction, last 30 days",
+      "increase": "Up",
+      "decrease": "Down",
+      "noChange": "No change"
+    },
+    "trend": {
+      "title": "Monthly spending trend",
+      "months3": "Last 3 months",
+      "chartLabel": "Line chart of total spending per month",
+      "month": "Month",
+      "spent": "Spent",
+      "empty": "No spending to chart yet. Your monthly totals will appear here."
+    },
+    "categories": {
+      "title": "Spending by category",
+      "chartLabel": "Donut chart of spending by category, last 30 days",
+      "totalSpent": "Total spent",
+      "category": "Category",
+      "share": "Share",
+      "amount": "Amount",
+      "empty": "No spending in the last 30 days, so there's nothing to break down yet.",
+      "period": "Last 30 days"
+    },
+    "recent": {
+      "title": "Recent transactions",
+      "date": "Date",
+      "merchant": "Merchant",
+      "category": "Category",
+      "paymentMethod": "Payment method",
+      "amount": "Amount",
+      "viewAll": "View all",
+      "viewDetails": "view details",
+      "empty": "No transactions yet. Your purchases will appear here.",
+      "lastCount_one": "Last transaction",
+      "lastCount_other": "Last {{count}} transactions"
+    },
+    "transaction": {
+      "title": "Transaction details",
+      "close": "Close transaction details",
+      "amount": "Amount",
+      "date": "Date and time",
+      "category": "Category",
+      "description": "Description",
+      "paymentMethod": "Payment method",
+      "reference": "Transaction ID"
+    },
+    "states": {
+      "errorTitle": "We couldn't load this",
+      "errorBody": "Something went wrong on our side. Please try again.",
+      "retry": "Try again",
+      "loading": "Loading…",
+      "emptyTitle": "Nothing here yet"
+    },
+    "dateRange": {
+      "from": "From",
+      "to": "To",
+      "notSet": "Select date",
+      "chooseStart": "Choose a start date",
+      "chooseEnd": "Choose an end date",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "showing": "Showing {{from}}–{{to}} of {{total}}",
+      "page": "Page {{page}} of {{count}}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "pageSize": "Rows per page"
+    },
+    "drawer": {
+      "expand": "Expand details",
+      "collapse": "Collapse details"
+    }
+  },
+  "spending": {
+    "title": "Spending analysis",
+    "subtitle": "See where your money goes and how it changes over time.",
+    "filters": {
+      "label": "Filters"
+    },
+    "periods": {
+      "label": "Time period",
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "1y": "1 year"
+    },
+    "customRange": {
+      "label": "Category breakdown dates",
+      "hint": "Applies to the category breakdown only."
+    },
+    "trend": {
+      "range": "Trend length",
+      "months3": "Last 3 months",
+      "months6": "Last 6 months",
+      "months12": "Last 12 months",
+      "months24": "Last 24 months"
+    },
+    "summary": {
+      "title": "Spending summary",
+      "totalSpent": "Total spent",
+      "vsPrevious": "vs. the previous {{days}} days",
+      "transactions": "Transactions",
+      "average": "Average transaction",
+      "topCategory": "Top category",
+      "none": "None"
+    },
+    "categories": {
+      "title": "Category breakdown",
+      "filterLabel": "Show categories",
+      "all": "All",
+      "category": "Category",
+      "amount": "Amount",
+      "percentage": "Percentage",
+      "transactions": "Transactions",
+      "chartLabel": "Donut chart of spending by category for the selected dates",
+      "total": "Total spent",
+      "selectedTotal": "Selected total",
+      "empty": "No spending in these dates, so there's nothing to break down.",
+      "noneSelected": "No spending in the selected categories for these dates."
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Browse, filter and sort your full transaction history.",
+    "listTitle": "All transactions",
+    "filters": {
+      "label": "Filter transactions",
+      "category": "Category",
+      "allCategories": "All categories",
+      "dates": "Dates",
+      "sort": "Sort by",
+      "clear": "Clear filters"
+    },
+    "sort": {
+      "date_desc": "Newest first",
+      "date_asc": "Oldest first",
+      "amount_desc": "Highest amount",
+      "amount_asc": "Lowest amount"
+    },
+    "empty": "No transactions yet. Your purchases will appear here.",
+    "noMatches": "No transactions match these filters."
+  },
+  "goals": {
+    "title": "Spending goals",
+    "subtitle": "Stay on track with your monthly budgets.",
+    "create": "Create goal",
+    "empty": "You haven't set any goals yet. Create one to keep a monthly budget on track.",
+    "card": {
+      "monthlyBudget": "Monthly budget: {{amount}}",
+      "spent": "{{amount}} spent",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left",
+      "progressLabel": "{{category}} budget used",
+      "progressValue": "{{percent}} of budget used",
+      "viewDetails": "view details"
+    },
+    "status": {
+      "on_track": "On track",
+      "warning": "Warning",
+      "exceeded": "Over budget"
+    },
+    "form": {
+      "createTitle": "Create a goal",
+      "createDescription": "Set a monthly budget for a spending category.",
+      "category": "Category",
+      "budget": "Monthly budget",
+      "budgetHint": "In rand, e.g. 1500 or 1500.50.",
+      "create": "Create goal",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "noCategories": "Every category already has a goal. Edit or delete one to change it.",
+      "errors": {
+        "budgetRequired": "Enter a monthly budget.",
+        "budgetInvalid": "Enter an amount like 1500 or 1500.50.",
+        "budgetPositive": "The budget must be more than R0.",
+        "budgetTooHigh": "The budget can be at most R1,000,000.",
+        "duplicate": "You already have a goal for this category.",
+        "generic": "We couldn't save this goal. Please try again."
+      }
+    },
+    "delete": {
+      "title": "Delete {{category}} goal?",
+      "description": "This removes your monthly budget of {{amount}}. Your transactions aren't affected.",
+      "confirm": "Delete goal",
+      "deleting": "Deleting…",
+      "cancel": "Cancel",
+      "error": "We couldn't delete this goal. Please try again."
+    },
+    "drawer": {
+      "title": "Goal details",
+      "close": "Close goal details",
+      "spentOf": "spent of {{amount}}",
+      "budget": "Monthly budget",
+      "spent": "Spent this month",
+      "remaining": "Remaining",
+      "overBy": "Over budget by",
+      "used": "Budget used",
+      "daysLeft": "Days left this month",
+      "edit": "Edit budget",
+      "delete": "Delete goal"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Your personal and account details.",
+    "details": {
+      "title": "Account details",
+      "totalSpent": "Total spent since joining",
+      "customerId": "Customer ID",
+      "joinDate": "Member since",
+      "currency": "Currency"
     }
   },
   "features": {

@@ -1,15 +1,18 @@
 import { screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { http, HttpResponse } from "msw";
+import { describe, expect, it } from "vitest";
+import App from "../App";
+import { EMPTY_USER } from "../mocks/fixtures";
+import { server } from "../mocks/server";
 import { expectNoA11yViolations } from "../test/axe";
-import { buildSignInValues } from "../test/factories";
+import { buildSignInValues, sessions } from "../test/factories";
 import { renderWithProviders } from "../test/render";
-import { LandingPage } from "./LandingPage";
 
 type User = ReturnType<typeof renderWithProviders>["user"];
 
-function setup(onSignIn = vi.fn()) {
-  const utils = renderWithProviders(<LandingPage onSignIn={onSignIn} />);
-  return { ...utils, onSignIn };
+// Rendered through App so sign-in can navigate to the dashboard.
+function setup(options: Parameters<typeof renderWithProviders>[1] = {}) {
+  return renderWithProviders(<App />, { route: "/", ...options });
 }
 
 async function openSignIn(user: User) {
@@ -17,6 +20,19 @@ async function openSignIn(user: User) {
     screen.getByRole("button", { name: /sign in to continue/i }),
   );
   return screen.getByRole("dialog", { name: "Sign in" });
+}
+
+async function submitCredentials(
+  user: User,
+  dialog: HTMLElement,
+  values = buildSignInValues(),
+) {
+  await user.type(
+    screen.getByLabelText(/account number/i),
+    values.accountNumber,
+  );
+  await user.type(screen.getByLabelText(/^pin$/i), values.pin);
+  await user.click(within(dialog).getByRole("button", { name: /^sign in$/i }));
 }
 
 describe("LandingPage", () => {
@@ -65,8 +81,8 @@ describe("LandingPage sign in", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
-  it("shows validation errors and does not submit invalid details", async () => {
-    const { user, onSignIn } = setup();
+  it("shows validation errors and does not send invalid details", async () => {
+    const { user } = setup();
     const dialog = await openSignIn(user);
 
     await user.type(screen.getByLabelText(/account number/i), "1234");
@@ -82,7 +98,7 @@ describe("LandingPage sign in", () => {
       "aria-invalid",
       "true",
     );
-    expect(onSignIn).not.toHaveBeenCalled();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("re-validates as the user types after a failed submit", async () => {
@@ -129,21 +145,83 @@ describe("LandingPage sign in", () => {
     expect(pin).toHaveAttribute("type", "password");
   });
 
-  it("submits valid details and closes the popup", async () => {
-    const { user, onSignIn } = setup();
+  it("signs in with valid details and opens the dashboard", async () => {
+    const { user } = setup();
     const dialog = await openSignIn(user);
-    const values = buildSignInValues();
 
-    await user.type(
-      screen.getByLabelText(/account number/i),
-      values.accountNumber,
+    await submitCredentials(user, dialog);
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /good (morning|afternoon|evening), john/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("signs in each demo user as themselves", async () => {
+    const { user } = setup();
+    const dialog = await openSignIn(user);
+
+    await submitCredentials(
+      user,
+      dialog,
+      buildSignInValues({
+        accountNumber: EMPTY_USER.accountNumber,
+        pin: EMPTY_USER.pin,
+      }),
     );
-    await user.type(screen.getByLabelText(/^pin$/i), values.pin);
-    await user.click(
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /thandi/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows an error and stays open when the details are wrong", async () => {
+    const { user } = setup();
+    const dialog = await openSignIn(user);
+
+    await submitCredentials(user, dialog, buildSignInValues({ pin: "99999" }));
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      /incorrect account number or pin/i,
+    );
+    expect(
       within(dialog).getByRole("button", { name: /^sign in$/i }),
+    ).toBeEnabled();
+
+    // Editing a field clears the server error.
+    await user.type(screen.getByLabelText(/^pin$/i), "{Backspace}");
+    expect(within(dialog).queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("shows a generic error when sign in fails for another reason", async () => {
+    server.use(
+      http.post("*/auth/sign-in", () =>
+        HttpResponse.json({ message: "Down" }, { status: 503 }),
+      ),
+    );
+    const { user } = setup();
+    const dialog = await openSignIn(user);
+
+    await submitCredentials(user, dialog);
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      /couldn't sign you in right now/i,
+    );
+  });
+
+  it("goes straight to the dashboard when already signed in", async () => {
+    const { user } = setup({ session: sessions.active });
+
+    await user.click(
+      screen.getByRole("button", { name: /sign in to continue/i }),
     );
 
-    expect(onSignIn).toHaveBeenCalledWith(values);
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /john/i }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 

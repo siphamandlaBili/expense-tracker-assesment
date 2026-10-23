@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuMenu, LuShieldCheck, LuX } from "react-icons/lu";
 import logo from "../../assets/logo.png";
+import { useAnimatedPresence } from "../../lib/motion";
 
 const NAV_LINKS = [
   { key: "nav.home", href: "#home" },
@@ -15,7 +15,8 @@ type HeaderProps = {
 
 export function Header({ onSignIn }: HeaderProps) {
   const { t } = useTranslation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  // The menu drops down when opened and lifts away when closed.
+  const menu = useAnimatedPresence();
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur">
@@ -67,13 +68,13 @@ export function Header({ onSignIn }: HeaderProps) {
           </a>
           <button
             type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-expanded={menuOpen}
+            onClick={menu.toggle}
+            aria-expanded={menu.isOpen}
             aria-controls="mobile-menu"
-            aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
+            aria-label={menu.isOpen ? t("nav.closeMenu") : t("nav.openMenu")}
             className="ml-2 rounded-md p-1 text-heading hover:text-primary"
           >
-            {menuOpen ? (
+            {menu.isOpen ? (
               <LuX className="size-8" aria-hidden />
             ) : (
               <LuMenu className="size-8" aria-hidden />
@@ -82,18 +83,18 @@ export function Header({ onSignIn }: HeaderProps) {
         </div>
       </div>
 
-      {menuOpen && (
+      {menu.mounted && (
         <nav
           id="mobile-menu"
           aria-label={t("nav.menu")}
-          className="border-t border-slate-100 bg-white"
+          className={`border-t border-slate-100 bg-white motion-reduce:animate-none ${menu.closing ? "animate-menu-out" : "animate-menu-in"}`}
         >
           <ul className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6 lg:px-10">
             {NAV_LINKS.map((link) => (
               <li key={link.key}>
                 <a
                   href={link.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={menu.close}
                   className="block rounded-md px-3 py-2 text-heading hover:bg-primary-light hover:text-primary"
                 >
                   {t(link.key)}
@@ -104,7 +105,7 @@ export function Header({ onSignIn }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setMenuOpen(false);
+                  menu.close();
                   onSignIn();
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-heading hover:bg-primary-light hover:text-primary"

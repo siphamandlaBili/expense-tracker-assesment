@@ -8,6 +8,9 @@ export default defineConfig({
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["./src/test/setup.ts"],
+    // Page-level tests render the whole app (charts included) and type
+    // character by character; coverage instrumentation slows them further.
+    testTimeout: 15_000,
     clearMocks: true,
     restoreMocks: true,
     unstubGlobals: true,

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openApp } from "./fixtures.ts";
 
 const PRIMARY_RGB = "rgb(0, 51, 160)"; // #0033a0
 
@@ -10,7 +11,7 @@ async function openSignIn(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await openApp(page);
 });
 
 test("opens with an empty, focused form", async ({ page }) => {

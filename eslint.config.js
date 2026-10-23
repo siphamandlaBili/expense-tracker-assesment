@@ -15,6 +15,7 @@ export default defineConfig([
     "playwright-report",
     "test-results",
     "blob-report",
+    "public/mockServiceWorker.js",
   ]),
   {
     files: ["**/*.{ts,tsx}"],
@@ -39,7 +40,13 @@ export default defineConfig([
     rules: {
       "vitest/expect-expect": [
         "error",
-        { assertFunctionNames: ["expect", "expectNoA11yViolations"] },
+        {
+          assertFunctionNames: [
+            "expect",
+            "expectNoA11yViolations",
+            "expectApiError",
+          ],
+        },
       ],
     },
   },

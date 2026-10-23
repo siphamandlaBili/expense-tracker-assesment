@@ -7,6 +7,85 @@
   --color-heading: #0b1f44;
   --color-body: #5b6577;
   --color-surface: #f5f8fd;
+  /* Background of the signed-in dashboard. */
+  --color-dashboard: #f7f7f7;
+
+  /* Motion. Every "out" animation lasts 200ms: EXIT_ANIMATION_MS in
+     src/lib/motion.ts must match.
+     - sheet:  transaction drawer on phones (bottom sheet, slides up/down)
+     - panel:  transaction drawer from md up (slides in/out from the right)
+     - nav:    dashboard navigation drawer (slides in/out from the left)
+     - menu:   landing page menu (fades and drops down)
+     - fade:   the dimmed backdrop behind any of them */
+  --animate-sheet-in: sheet-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-out: sheet-out 200ms ease-in forwards;
+  --animate-panel-in: panel-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-panel-out: panel-out 200ms ease-in forwards;
+  --animate-nav-in: nav-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-nav-out: nav-out 200ms ease-in forwards;
+  --animate-menu-in: menu-in 200ms ease-out;
+  --animate-menu-out: menu-out 200ms ease-in forwards;
+  --animate-fade-in: fade-in 260ms ease-out;
+  --animate-fade-out: fade-out 200ms ease-in forwards;
+
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes panel-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes panel-out {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes nav-in {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes nav-out {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+  @keyframes menu-out {
+    to {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+/* Always reserve the scrollbar's space, so locking scroll for a popup or
+   drawer (which hides the scrollbar) doesn't shift the page sideways. */
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
