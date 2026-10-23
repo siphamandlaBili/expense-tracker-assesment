@@ -54,8 +54,8 @@ export function CategoryBreakdownCard({
                 className="size-44 @sm:size-36 @md:size-40 @lg:size-48"
               />
 
-              {/* The legend doubles as the data table. The share column is
-                  for screen readers only; sighted users get it on hover. */}
+              {/* The legend doubles as the data table. The share is shown
+                  here too: touch screens can't hover the donut. */}
               <table className="text-sm">
                 <caption className="sr-only">
                   {t("dashboard.categories.title")}
@@ -84,7 +84,7 @@ export function CategoryBreakdownCard({
                           {category.name}
                         </span>
                       </th>
-                      <td className="sr-only">
+                      <td className="py-1.5 pl-3 text-right whitespace-nowrap text-body tabular-nums">
                         {formatPercent(category.percentage)}
                       </td>
                       <td className="py-1.5 pl-3 text-right font-medium whitespace-nowrap text-heading">
