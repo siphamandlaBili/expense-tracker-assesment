@@ -1,11 +1,13 @@
 import { Navigate, Route, Routes } from "react-router";
+import {
+  GoalsPage,
+  OverviewPage,
+  ProfilePage,
+  SpendingPage,
+  TransactionsPage,
+} from "./app/pages";
 import { RequireAuth } from "./auth/RequireAuth";
 import { DashboardLayout } from "./pages/dashboard/DashboardLayout";
-import { GoalsPage } from "./pages/dashboard/GoalsPage";
-import { OverviewPage } from "./pages/dashboard/OverviewPage";
-import { ProfilePage } from "./pages/dashboard/ProfilePage";
-import { SpendingPage } from "./pages/dashboard/SpendingPage";
-import { TransactionsPage } from "./pages/dashboard/TransactionsPage";
 import { LandingPage } from "./pages/LandingPage";
 
 function App() {

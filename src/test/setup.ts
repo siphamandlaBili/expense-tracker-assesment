@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { preloadDashboardPages } from "../app/pages";
 import { resetDb } from "../mocks/db";
 import { server } from "../mocks/server";
 import { TEST_NOW } from "./constants";
@@ -18,6 +19,10 @@ class ResizeObserverStub {
 }
 globalThis.ResizeObserver ??=
   ResizeObserverStub as unknown as typeof ResizeObserver;
+
+// Pages are code-split; loading them up front lets tests assert on a page
+// as soon as it renders, without waiting out the Suspense fallback.
+beforeAll(() => preloadDashboardPages());
 
 // Any request without a matching MSW handler fails the test.
 beforeAll(() => {
