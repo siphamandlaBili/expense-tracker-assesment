@@ -100,6 +100,8 @@ export function Select<T extends string | number>({
     if (action) {
       // Tab must still move focus on.
       if (event.key !== "Tab") event.preventDefault();
+      // Escape closes only the list, not a dialog the Select sits in.
+      if (open && event.key === "Escape") event.stopPropagation();
       action();
       return;
     }

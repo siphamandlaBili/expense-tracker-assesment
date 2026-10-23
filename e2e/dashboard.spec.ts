@@ -207,3 +207,28 @@ test("profile page shows the customer's details", async ({
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
 });
+
+test("goals page opens a goal's details in the drawer", async ({
+  page,
+  isMobile,
+}) => {
+  await signIn(page, USERS.active);
+  if (isMobile) {
+    await page.getByRole("button", { name: "Open navigation" }).click();
+  }
+  await page.getByRole("link", { name: "Goals" }).last().click();
+
+  const card = page.getByRole("article", { name: "Groceries" });
+  await expect(card).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+
+  await card.click();
+  const drawer = page.getByRole("dialog", { name: "Goal details" });
+  await expect(
+    drawer.getByRole("button", { name: "Edit budget" }),
+  ).toBeVisible();
+  await expect(
+    drawer.getByRole("button", { name: "Delete goal" }),
+  ).toBeVisible();
+});

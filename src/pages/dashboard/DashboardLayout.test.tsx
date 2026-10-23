@@ -43,7 +43,7 @@ describe("Dashboard layout", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Goals" }),
+      screen.getByRole("heading", { level: 1, name: "Spending goals" }),
     ).toBeInTheDocument();
     expect(
       within(dashboardNav()).getByRole("link", { name: "Goals" }),

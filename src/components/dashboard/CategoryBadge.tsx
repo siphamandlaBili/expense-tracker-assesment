@@ -29,7 +29,9 @@ export function CategoryBadge({
       className={`flex shrink-0 items-center justify-center rounded-full ${size === "sm" ? "size-6" : "size-7"} ${tinted ? "" : "bg-slate-100 text-body"}`}
       style={tinted ? { backgroundColor: `${color}1f`, color } : undefined}
     >
-      {renderCategoryIcon(icon, size === "sm" ? "size-3.5" : "size-4")}
+      {/* No icon name yet (e.g. /filters still loading): an empty circle,
+          not a misleading fallback icon. */}
+      {icon && renderCategoryIcon(icon, size === "sm" ? "size-3.5" : "size-4")}
     </span>
   );
 }

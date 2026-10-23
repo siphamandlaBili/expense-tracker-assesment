@@ -120,8 +120,6 @@
     "transaction": {
       "title": "Transaction details",
       "close": "Close transaction details",
-      "expand": "Expand details",
-      "collapse": "Collapse details",
       "amount": "Amount",
       "date": "Date and time",
       "category": "Category",
@@ -136,7 +134,6 @@
       "loading": "Loading…",
       "emptyTitle": "Nothing here yet"
     },
-    "comingSoon": "This page is coming soon.",
     "dateRange": {
       "from": "From",
       "to": "To",
@@ -153,6 +150,10 @@
       "previous": "Previous page",
       "next": "Next page",
       "pageSize": "Rows per page"
+    },
+    "drawer": {
+      "expand": "Expand details",
+      "collapse": "Collapse details"
     }
   },
   "spending": {
@@ -223,6 +224,68 @@
     },
     "empty": "No transactions yet. Your purchases will appear here.",
     "noMatches": "No transactions match these filters."
+  },
+  "goals": {
+    "title": "Spending goals",
+    "subtitle": "Stay on track with your monthly budgets.",
+    "create": "Create goal",
+    "empty": "You haven't set any goals yet. Create one to keep a monthly budget on track.",
+    "card": {
+      "monthlyBudget": "Monthly budget: {{amount}}",
+      "spent": "{{amount}} spent",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left",
+      "progressLabel": "{{category}} budget used",
+      "progressValue": "{{percent}} of budget used",
+      "viewDetails": "view details"
+    },
+    "status": {
+      "on_track": "On track",
+      "warning": "Warning",
+      "exceeded": "Over budget"
+    },
+    "form": {
+      "createTitle": "Create a goal",
+      "createDescription": "Set a monthly budget for a spending category.",
+      "category": "Category",
+      "budget": "Monthly budget",
+      "budgetHint": "In rand, e.g. 1500 or 1500.50.",
+      "create": "Create goal",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "noCategories": "Every category already has a goal. Edit or delete one to change it.",
+      "errors": {
+        "budgetRequired": "Enter a monthly budget.",
+        "budgetInvalid": "Enter an amount like 1500 or 1500.50.",
+        "budgetPositive": "The budget must be more than R0.",
+        "budgetTooHigh": "The budget can be at most R1,000,000.",
+        "duplicate": "You already have a goal for this category.",
+        "generic": "We couldn't save this goal. Please try again."
+      }
+    },
+    "delete": {
+      "title": "Delete {{category}} goal?",
+      "description": "This removes your monthly budget of {{amount}}. Your transactions aren't affected.",
+      "confirm": "Delete goal",
+      "deleting": "Deleting…",
+      "cancel": "Cancel",
+      "error": "We couldn't delete this goal. Please try again."
+    },
+    "drawer": {
+      "title": "Goal details",
+      "close": "Close goal details",
+      "spentOf": "spent of {{amount}}",
+      "budget": "Monthly budget",
+      "spent": "Spent this month",
+      "remaining": "Remaining",
+      "overBy": "Over budget by",
+      "used": "Budget used",
+      "daysLeft": "Days left this month",
+      "edit": "Edit budget",
+      "delete": "Delete goal"
+    }
   },
   "profile": {
     "title": "Profile",
