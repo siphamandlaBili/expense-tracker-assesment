@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openApp } from "./fixtures.ts";
+import { openApp, waitForMockApi } from "./fixtures.ts";
 
 // The production build serves the API from the in-browser mock when
 // VITE_ENABLE_MOCKS=true, so the deployed demo works without a backend.
@@ -40,6 +40,7 @@ test("goal changes survive a page reload", async ({ page }) => {
 
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await waitForMockApi(page);
   const goals = await page.evaluate(async () => {
     const response = await fetch("/api/customers/12345/goals");
     const body = (await response.json()) as { goals: { id: string }[] };

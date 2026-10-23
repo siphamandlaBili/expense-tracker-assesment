@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import { API_BASE_URL } from "./config";
+import { whenMockReady } from "./mockGate";
 import { apiErrorBodySchema } from "./schemas";
 
 export class ApiError extends Error {
@@ -39,6 +40,7 @@ export async function apiRequest<T = void>(
   path: string,
   { method = "GET", query, body, signal, schema }: RequestOptions<T> = {},
 ): Promise<T> {
+  await whenMockReady();
   const response = await fetch(buildUrl(path, query), {
     method,
     signal,
