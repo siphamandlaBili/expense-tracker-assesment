@@ -1,4 +1,88 @@
-# Spending Monitor App
+# Moya Bank: Customer Spending Insights
+
+A dashboard where a bank customer sees where their money goes: spending
+summary, categories, monthly trends, transactions, budget goals and profile.
+
+Built with React 19, TypeScript, Vite, Tailwind CSS, TanStack Query, React
+Router, zod and i18next. The API is mocked in the browser (MSW), so the app
+runs without a backend. See [API and mock data](#api-and-mock-data) and the
+[demo sign-in](#demo-sign-in) accounts.
+
+## Requirements
+
+- **Docker** to build and run the container, or
+- **Node.js 24** and npm to run locally (`.nvmrc` pins the version).
+
+## Run with Docker
+
+```sh
+docker build -t spending-insights .
+docker run --rm -p 8080:8080 spending-insights
+```
+
+Open http://localhost:8080 and sign in with account `12345678901234`, PIN
+`12345`.
+
+The image is built in stages: dependencies, then a production build, then
+only the static files served by nginx as a non-root user. The image includes:
+
+- **SPA routing:** any client-side route (`/dashboard/goals`, …) serves the
+  app.
+- **Caching:** hashed files under `/assets` are cached for a year;
+  `index.html` and the mock service worker are always revalidated.
+- **Security headers:** a Content Security Policy, `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy`. They
+  are set in `docker/security-headers.inc`.
+- **Health check:** `GET /healthz` returns `200 ok` and Docker's
+  `HEALTHCHECK` uses it.
+
+Run the lint, typecheck and unit tests inside Docker (no local Node needed):
+
+```sh
+docker build --target test .
+```
+
+To point the image at a real API instead of the mock, pass build arguments
+(Vite bakes them into the bundle at build time):
+
+```sh
+docker build -t spending-insights \
+  --build-arg VITE_ENABLE_MOCKS=false \
+  --build-arg VITE_API_BASE_URL=https://api.example.com/api .
+```
+
+If the API is on another origin, add it to `connect-src` in
+`docker/security-headers.inc`.
+
+## Run locally
+
+```sh
+npm ci
+npm run dev        # http://localhost:5173, with hot reload
+```
+
+To run the production build locally:
+
+```sh
+npm run build
+npm run preview    # http://localhost:4173
+```
+
+Measure performance (Lighthouse) against `npm run preview`, not the dev
+server. The dev server serves unbundled, unminified code and scores far
+lower.
+
+## Test
+
+```sh
+npm run lint            # ESLint, fails on any warning
+npm run typecheck       # app, tests and e2e
+npm run test:coverage   # unit and component tests, 80% coverage gate
+npx playwright install chromium   # first time only
+npm run test:e2e        # Playwright on desktop and mobile, production build
+```
+
+See [Testing](#testing) for how the tests are organised and written.
 
 ## Scripts
 
@@ -6,14 +90,14 @@
 | ----------------------- | --------------------------------------------- |
 | `npm run dev`           | Start the dev server                          |
 | `npm run build`         | Typecheck and build for production            |
+| `npm run preview`       | Serve the production build                    |
 | `npm run lint`          | Lint (fails on any warning)                   |
 | `npm run typecheck`     | Typecheck app, tests, and e2e                 |
+| `npm run format:check`  | Check formatting with Prettier                |
 | `npm test`              | Unit/component tests in watch mode            |
 | `npm run test:coverage` | Unit/component tests once, with coverage gate |
 | `npm run test:e2e`      | Playwright tests against the production build |
 | `npm run test:e2e:ui`   | Playwright in interactive UI mode             |
-
-First-time e2e setup: `npx playwright install chromium`.
 
 ## Project structure
 
@@ -155,5 +239,6 @@ each test. A request with no handler **fails the test**.
 - **Pre-commit:** lint and format staged files, run only the tests related to
   them, typecheck.
 - **CI (`.github/workflows/ci.yml`):** typecheck, lint, format, unit tests with
-  an 80% coverage threshold, build, and Playwright e2e. The HTML coverage report
+  an 80% coverage threshold, build, Playwright e2e, and a Docker build that
+  starts the container and checks it serves the app. The HTML coverage report
   and, on failure, the Playwright report are uploaded as artifacts.

@@ -1,0 +1,15 @@
+.git
+.github
+.husky
+.vscode
+.idea
+node_modules
+dist
+coverage
+playwright-report
+test-results
+blob-report
+Dockerfile
+.dockerignore
+*.log
+*.local
