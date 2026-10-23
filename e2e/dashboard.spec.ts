@@ -108,7 +108,10 @@ test("transactions table fits without scrolling sideways", async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
-test("clicking a transaction opens its details drawer", async ({ page }) => {
+test("clicking a transaction opens its details drawer", async ({
+  page,
+  isMobile,
+}) => {
   await signIn(page, USERS.active);
   const rows = page
     .getByRole("region", { name: "Recent transactions" })
@@ -119,6 +122,14 @@ test("clicking a transaction opens its details drawer", async ({ page }) => {
   const drawer = page.getByRole("dialog", { name: "Transaction details" });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByText(/^txn_/)).toBeVisible();
+
+  // The bottom sheet (phones) closes by swiping or tapping outside, so its ✕
+  // is visually hidden (still there for screen readers).
+  const closeWidth = await drawer
+    .getByRole("button", { name: "Close transaction details" })
+    .evaluate((element) => element.getBoundingClientRect().width);
+  if (isMobile) expect(closeWidth).toBeLessThanOrEqual(1);
+  else expect(closeWidth).toBeGreaterThan(20);
 
   await page.keyboard.press("Escape");
   await expect(drawer).toBeHidden();

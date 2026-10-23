@@ -236,6 +236,10 @@ describe("Goals page", () => {
     });
     // The drawer stays open underneath; focus starts on the safe choice.
     expect(drawer).toBeInTheDocument();
+    // Cancel is the way out; there is no ✕ as well.
+    expect(
+      within(dialog).queryByRole("button", { name: /close/i }),
+    ).not.toBeInTheDocument();
     expect(
       within(dialog).getByRole("button", { name: "Cancel" }),
     ).toHaveFocus();

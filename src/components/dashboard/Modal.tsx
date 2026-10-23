@@ -5,8 +5,9 @@ import { useModal } from "../../lib/useModal";
 type ModalProps = {
   title: string;
   description?: string;
-  /** Accessible name of the close (✕) button. */
-  closeLabel: string;
+  /** Accessible name of the close (✕) button. Omit for a dialog with its
+   *  own Cancel button, which then has no ✕. */
+  closeLabel?: string;
   onClose: () => void;
   /** Element focused on open (usually the first field). */
   initialFocus: RefObject<HTMLElement | null>;
@@ -17,7 +18,7 @@ type ModalProps = {
 
 /**
  * Centred dialog over a dimmed page: the sign-in popup and the goal forms.
- * Closes on Escape, the ✕ or a click on the backdrop; focus moves in on
+ * Closes on Escape, the ✕ (or Cancel) or a click on the backdrop; focus moves in on
  * open and back out on close (useModal).
  */
 export function Modal({
@@ -48,18 +49,20 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         className="relative w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl sm:p-6"
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={closeLabel}
-          className="absolute top-3 right-3 rounded-full p-2 text-body hover:bg-primary-light hover:text-primary"
-        >
-          <LuX className="size-5" aria-hidden />
-        </button>
+        {closeLabel && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={closeLabel}
+            className="absolute top-3 right-3 rounded-full p-2 text-body hover:bg-primary-light hover:text-primary"
+          >
+            <LuX className="size-5" aria-hidden />
+          </button>
+        )}
 
         <h2
           id={titleId}
-          className="pr-8 text-xl leading-tight font-bold text-heading"
+          className={`text-xl leading-tight font-bold text-heading ${closeLabel ? "pr-8" : ""}`}
         >
           {title}
         </h2>

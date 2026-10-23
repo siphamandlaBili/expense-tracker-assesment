@@ -27,7 +27,8 @@ type DrawerProps = {
  * Details drawer (transactions, goals). Phones: a draggable bottom sheet
  * with snap points, the smallest fitting all its content. md and up: a
  * full-height panel from the right. Slides in and out, closes on Escape, the
- * ✕ or the backdrop, and moves focus in and back out.
+ * ✕ (side panel), a swipe down (sheet) or the backdrop, and moves focus in and
+ * back out.
  */
 export function Drawer({
   title,
@@ -135,12 +136,15 @@ export function Drawer({
             <h2 id={titleId} className="font-semibold text-heading">
               {title}
             </h2>
+            {/* Phones close the sheet by swiping down or tapping outside, so
+                the ✕ is hidden there, but kept for screen readers and shown
+                when reached with the keyboard. */}
             <button
               ref={closeRef}
               type="button"
               onClick={requestClose}
               aria-label={closeLabel}
-              className="rounded-full p-2 text-body hover:bg-dashboard hover:text-primary"
+              className="rounded-full p-2 text-body hover:bg-dashboard hover:text-primary max-md:not-focus-visible:sr-only"
             >
               <LuX className="size-5" aria-hidden />
             </button>

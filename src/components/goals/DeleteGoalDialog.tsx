@@ -45,7 +45,6 @@ export function DeleteGoalDialog({
       description={t("goals.delete.description", {
         amount: formatCurrency(goal.monthlyBudget, currency),
       })}
-      closeLabel={t("goals.form.close")}
       onClose={onClose}
       initialFocus={cancelRef}
     >
