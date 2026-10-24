@@ -15,7 +15,6 @@ export default defineConfig([
     "playwright-report",
     "test-results",
     "blob-report",
-    "public/mockServiceWorker.js",
   ]),
   {
     files: ["**/*.{ts,tsx}"],

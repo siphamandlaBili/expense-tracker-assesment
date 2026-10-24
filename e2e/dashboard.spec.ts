@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { openApp } from "./fixtures.ts";
 
-// Demo credentials from src/mocks/fixtures.ts.
+// Demo customers served by the API (github.com/siphamandlaBili/expense-tracker-data).
 const USERS = {
   active: { accountNumber: "12345678901234", pin: "12345", firstName: "John" },
   empty: { accountNumber: "23456789012345", pin: "23456", firstName: "Thandi" },

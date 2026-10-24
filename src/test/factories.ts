@@ -5,7 +5,7 @@ import {
   EMPTY_USER,
   ERROR_USER,
   type MockUser,
-} from "../mocks/fixtures";
+} from "./fakeApi/fixtures";
 
 /** Defaults to the active demo user's real credentials. */
 export function buildSignInValues(

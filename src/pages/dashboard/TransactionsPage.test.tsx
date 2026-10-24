@@ -1,10 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { fakeApi } from "../../test/fakeApi";
 import App from "../../App";
 import { customersApi } from "../../api/customers";
 import { formatCount, formatCurrency } from "../../lib/format";
-import { ACTIVE_USER } from "../../mocks/fixtures";
-import { server } from "../../mocks/server";
+import { ACTIVE_USER } from "../../test/fakeApi/fixtures";
 import { expectNoA11yViolations } from "../../test/axe";
 import {
   chooseOption,
@@ -18,14 +18,10 @@ import { renderWithProviders } from "../../test/render";
 
 const id = ACTIVE_USER.customerId;
 
-afterEach(() => {
-  server.events.removeAllListeners();
-});
-
 /** Records the query params of every /transactions request. */
 function recordRequests() {
   const requests: Record<string, string>[] = [];
-  server.events.on("request:start", ({ request }) => {
+  fakeApi.onRequest((request) => {
     const url = new URL(request.url);
     if (url.pathname.endsWith("/transactions")) {
       requests.push(Object.fromEntries(url.searchParams));

@@ -14,13 +14,11 @@ RUN npm run lint && npm run typecheck && npm run test:run
 
 # ---- Build ----------------------------------------------------------------
 FROM deps AS build
-# The API is mocked in the browser by default, so the image runs with no
-# backend. To use a real API: --build-arg VITE_ENABLE_MOCKS=false
-#                            --build-arg VITE_API_BASE_URL=https://…
-ARG VITE_ENABLE_MOCKS=true
-ARG VITE_API_BASE_URL=/api
-ENV VITE_ENABLE_MOCKS=$VITE_ENABLE_MOCKS \
-    VITE_API_BASE_URL=$VITE_API_BASE_URL
+# The app calls the hosted API (src/api/config.ts). To use another one:
+#   --build-arg VITE_API_BASE_URL=https://…/api
+# and add its origin to connect-src in docker/security-headers.inc.
+ARG VITE_API_BASE_URL=
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 COPY . .
 RUN npm run build
 

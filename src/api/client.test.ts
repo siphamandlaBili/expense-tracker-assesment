@@ -1,16 +1,15 @@
-import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import { fakeApi, http } from "../test/fakeApi";
 import { z } from "zod";
-import { server } from "../mocks/server";
 import { ApiError, apiRequest } from "./client";
 
 describe("apiRequest", () => {
   it("builds the URL with only the defined query parameters", async () => {
     let requestedUrl = "";
-    server.use(
+    fakeApi.use(
       http.get("*/api/ping", ({ request }) => {
         requestedUrl = request.url;
-        return HttpResponse.json({ ok: true });
+        return Response.json({ ok: true });
       }),
     );
 
@@ -26,10 +25,10 @@ describe("apiRequest", () => {
 
   it("sends JSON bodies", async () => {
     let received: unknown;
-    server.use(
+    fakeApi.use(
       http.post("*/api/echo", async ({ request }) => {
         received = await request.json();
-        return new HttpResponse(null, { status: 204 });
+        return new Response(null, { status: 204 });
       }),
     );
 
@@ -39,9 +38,9 @@ describe("apiRequest", () => {
   });
 
   it("throws ApiError with the server's message", async () => {
-    server.use(
+    fakeApi.use(
       http.get("*/api/broken", () =>
-        HttpResponse.json({ message: "Something broke" }, { status: 503 }),
+        Response.json({ message: "Something broke" }, { status: 503 }),
       ),
     );
 
@@ -52,11 +51,11 @@ describe("apiRequest", () => {
   });
 
   it("falls back to the status text when the error body isn't JSON", async () => {
-    server.use(
+    fakeApi.use(
       http.get(
         "*/api/html-error",
         () =>
-          new HttpResponse("<h1>Bad gateway</h1>", {
+          new Response("<h1>Bad gateway</h1>", {
             status: 502,
             statusText: "Bad Gateway",
           }),
@@ -70,8 +69,8 @@ describe("apiRequest", () => {
   });
 
   it("rejects responses that don't match the schema", async () => {
-    server.use(
-      http.get("*/api/shape", () => HttpResponse.json({ total: "lots" })),
+    fakeApi.use(
+      http.get("*/api/shape", () => Response.json({ total: "lots" })),
     );
 
     await expect(

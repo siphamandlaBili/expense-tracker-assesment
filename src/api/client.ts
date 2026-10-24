@@ -1,6 +1,5 @@
 import type { z } from "zod";
 import { API_BASE_URL } from "./config";
-import { whenMockReady } from "./mockGate";
 import { apiErrorBodySchema } from "./schemas";
 
 export class ApiError extends Error {
@@ -25,8 +24,7 @@ type RequestOptions<T> = {
 };
 
 function buildUrl(path: string, query: Record<string, QueryValue> = {}) {
-  // Resolving against the page origin keeps relative bases working in both
-  // the browser and Node-based tests.
+  // Resolving against the page origin also allows a relative base (/api).
   const url = new URL(`${API_BASE_URL}${path}`, window.location.origin);
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined && value !== "") {
@@ -40,7 +38,6 @@ export async function apiRequest<T = void>(
   path: string,
   { method = "GET", query, body, signal, schema }: RequestOptions<T> = {},
 ): Promise<T> {
-  await whenMockReady();
   const response = await fetch(buildUrl(path, query), {
     method,
     signal,

@@ -45,7 +45,6 @@ export default defineConfig({
         "src/main.tsx",
         "src/i18n/index.ts",
         "src/test/**",
-        "src/mocks/**",
       ],
       reporter: ["text", "html", "lcov"],
       thresholds: {

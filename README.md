@@ -4,9 +4,8 @@ A dashboard where a bank customer sees where their money goes: spending
 summary, categories, monthly trends, transactions, budget goals and profile.
 
 Built with React 19, TypeScript, Vite, Tailwind CSS, TanStack Query, React
-Router, zod and i18next. The API is mocked in the browser (MSW), so the app
-runs without a backend. See [API and mock data](#api-and-mock-data) and the
-[demo sign-in](#demo-sign-in) accounts.
+Router, zod and i18next. Data comes from the hosted [spending API](#api), a
+separate service; see the [demo sign-in](#demo-sign-in) accounts.
 
 ## Requirements
 
@@ -29,7 +28,7 @@ only the static files served by nginx as a non-root user. The image includes:
 - **SPA routing:** any client-side route (`/dashboard/goals`, …) serves the
   app.
 - **Caching:** hashed files under `/assets` are cached for a year;
-  `index.html` and the mock service worker are always revalidated.
+  `index.html` is always revalidated.
 - **Security headers:** a Content Security Policy, `X-Frame-Options`,
   `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy`. They
   are set in `docker/security-headers.inc`.
@@ -42,17 +41,14 @@ Run the lint, typecheck and unit tests inside Docker (no local Node needed):
 docker build --target test .
 ```
 
-To point the image at a real API instead of the mock, pass build arguments
-(Vite bakes them into the bundle at build time):
+To use a different API, pass its URL as a build argument (Vite bakes it into
+the bundle at build time) and add its origin to `connect-src` in
+`docker/security-headers.inc`:
 
 ```sh
 docker build -t spending-insights \
-  --build-arg VITE_ENABLE_MOCKS=false \
   --build-arg VITE_API_BASE_URL=https://api.example.com/api .
 ```
-
-If the API is on another origin, add it to `connect-src` in
-`docker/security-headers.inc`.
 
 ## Run locally
 
@@ -114,9 +110,8 @@ src/
     spending/   pieces used only by the Spending page
     landing/    landing page sections
   lib/          pure helpers (formatting, filters, series bucketing) and hooks
-  mocks/        MSW handlers and the mock database
   pages/        one component per route
-  test/         render helpers, factories, axe helper
+  test/         render helpers, factories, axe helper, fake API for tests
 ```
 
 Conventions that keep pages consistent:
@@ -129,35 +124,24 @@ Conventions that keep pages consistent:
   and labels, not API responses, so any page can reuse them.
 - **Text:** all visible text lives in `src/i18n/locales/en.json`.
 
-## API and mock data
+## API
 
-The app talks to the spending API through typed React Query hooks:
+The app calls the spending API, a separate service:
+
+- **URL:** https://expense-tracker-data-qypy.vercel.app/api
+- **Code:** https://github.com/siphamandlaBili/expense-tracker-data (Express,
+  MongoDB for goals, hosted on Vercel)
+
+To use another API, set `VITE_API_BASE_URL` at build time (see
+`src/api/config.ts`).
+
+The app talks to it through typed React Query hooks:
 
 - `src/api/queries.ts`: `useProfile`, `useSpendingSummary`,
   `useSpendingByCategory`, `useSpendingTrends`, `useTransactions`, `useGoals`,
   `useFilters`.
 - `src/api/mutations.ts`: `useCreateGoal`, `useUpdateGoal`, `useDeleteGoal`.
 - Every response is validated against the zod schemas in `src/api/schemas.ts`.
-
-Until the real API exists, every request is answered by a mock running in the
-browser (MSW, in `src/mocks/`), including in the deployed build. To control it:
-
-| Variable            | Effect                                       |
-| ------------------- | -------------------------------------------- |
-| `VITE_ENABLE_MOCKS` | `"true"` (set in `.env`) serves the mock API |
-| `VITE_API_BASE_URL` | Real API base URL; defaults to `/api`        |
-
-How the mock behaves:
-
-- **Transactions** are about 1,300 generated from a fixed seed over the last 25
-  months, ending today. The same day always gives the same data.
-- **Figures always agree.** Summary, categories, trends, goal progress and the
-  profile total are all calculated from those transactions.
-- **Errors follow the API contract.** Bad input returns 400, an unknown customer
-  or goal 404, and a duplicate goal 409.
-- **Goals are editable**, and changes are saved in the browser's localStorage so
-  they survive a reload. Each visitor has their own copy. Run
-  `localStorage.removeItem("moya-mock-db:v1:goals")` to reset.
 
 ### Demo sign-in
 
@@ -167,9 +151,10 @@ How the mock behaves:
 | `23456789012345` | `23456` | 23456    | Empty states: a new customer with no activity |
 | `34567890123456` | `34567` | 34567    | Error states: spending endpoints return 500   |
 
-These are defined in `src/mocks/fixtures.ts` (`MOCK_USERS`). Sign-in calls
-`POST /api/auth/sign-in`; any other combination returns 401. The session is
-kept in `sessionStorage`, so it ends when the tab closes.
+Sign-in calls `POST /api/auth/sign-in`; any other combination returns 401.
+The session is kept in `sessionStorage`, so it ends when the tab closes. Goals
+are stored by the API, so goal changes are shared by everyone using a demo
+account.
 
 ### Spending page filters
 
@@ -206,8 +191,9 @@ page. The view is kept in the URL (`?category=Dining&page=2&size=10`).
 - **Unit and component tests** (Vitest, jsdom, Testing Library) sit next to the
   code they test as `*.test.ts(x)`.
 - **End-to-end tests** (Playwright) live in `e2e/` and run against the
-  production build on a desktop and a mobile viewport. Use them for anything
-  jsdom cannot do: layout, CSS, focus styles, scroll locking, colour contrast.
+  production build on a desktop and a mobile viewport, calling the live API.
+  Use them for anything jsdom cannot do: layout, CSS, focus styles, scroll
+  locking, colour contrast.
 
 ### Writing component tests
 
@@ -224,9 +210,14 @@ page. The view is kept in the URL (`?category=Dining&page=2&size=10`).
 
 ### Network
 
-All HTTP is mocked with MSW. Default handlers live in `src/mocks/handlers.ts`.
-Override them in a single test with `server.use(...)`; overrides reset after
-each test. A request with no handler **fails the test**.
+Unit tests never reach the network. `fetch` is replaced by a fake API
+(`src/test/fakeApi`) that behaves like the real one over seeded data with a
+fixed date, so results are identical every run.
+
+- Override a route in a single test with `fakeApi.use(http.get(...))`;
+  overrides reset after each test.
+- Check what was sent with `fakeApi.onRequest(...)`.
+- A request with no matching route **fails**.
 
 ### Translations
 
