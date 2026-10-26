@@ -14,10 +14,12 @@ export function SpendingTrendCard({
   query,
   action,
   className,
+  currency,
 }: {
   query: UseQueryResult<SpendingTrends>;
   action?: ReactNode;
   className?: string;
+  currency?: string;
 }) {
   const { t } = useTranslation();
 
@@ -45,6 +47,7 @@ export function SpendingTrendCard({
             formatTick={formatMonthShort}
             formatKey={formatMonthLong}
             dimmed={query.isPlaceholderData}
+            currency={currency}
           />
         )}
       </QueryContent>

@@ -127,6 +127,7 @@ export function GoalsPage() {
       {creating && (
         <GoalFormDialog
           categories={available}
+          currency={currency}
           onClose={() => setCreating(false)}
           onSubmit={async (values) => {
             await createGoal.mutateAsync(values);

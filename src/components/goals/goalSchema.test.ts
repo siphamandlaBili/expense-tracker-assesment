@@ -23,4 +23,12 @@ describe("parseBudget", () => {
   ])("rejects %j", (input, error) => {
     expect(parseBudget(input)).toEqual({ error });
   });
+
+  it("reads the profile currency's symbol or code, not the rand's", () => {
+    expect(parseBudget("$500", "USD")).toEqual({ amount: 500 });
+    expect(parseBudget("USD 1,500.50", "USD")).toEqual({ amount: 1500.5 });
+    expect(parseBudget("R500", "USD")).toEqual({
+      error: "goals.form.errors.budgetInvalid",
+    });
+  });
 });

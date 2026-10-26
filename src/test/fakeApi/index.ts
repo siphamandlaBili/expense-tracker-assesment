@@ -1,7 +1,8 @@
+import { findUser } from "./fixtures";
 import { handlers } from "./handlers";
-import type { Route } from "./routes";
+import { http, type Route } from "./routes";
 
-export { http } from "./routes";
+export { http };
 export { resetDb } from "./db";
 
 // An in-process stand-in for the spending API, installed as `fetch` in unit
@@ -59,3 +60,17 @@ export async function fakeFetch(
   console.error(message);
   throw new TypeError(message);
 }
+
+/** A route serving the profile in another currency (use with fakeApi.use). */
+export const profileInCurrency = (currency: string) =>
+  http.get("*/customers/:customerId/profile", ({ params }) => {
+    const user = findUser(params.customerId);
+    return user
+      ? Response.json({
+          customerId: user.customerId,
+          ...user.profile,
+          totalSpent: 0,
+          currency,
+        })
+      : Response.json({ message: "Not found" }, { status: 404 });
+  });

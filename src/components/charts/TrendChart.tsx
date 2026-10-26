@@ -35,6 +35,8 @@ type TrendChartProps = {
   formatKey: (key: string) => string;
   /** Faded while newer data loads. */
   dimmed?: boolean;
+  /** ISO code of the amounts (the profile currency). */
+  currency?: string;
 };
 
 /** Points beyond this many get no dots: the line alone reads better. */
@@ -52,6 +54,7 @@ export function TrendChart({
   formatTick,
   formatKey,
   dimmed = false,
+  currency,
 }: TrendChartProps) {
   // useId output isn't a valid CSS identifier inside url(#...).
   const gradientId = `trend-fill-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -94,7 +97,9 @@ export function TrendChart({
               dy={8}
             />
             <YAxis
-              tickFormatter={formatAxisCurrency}
+              tickFormatter={(value: number) =>
+                formatAxisCurrency(value, currency)
+              }
               axisLine={false}
               tickLine={false}
               tick={{ fill: CHART_AXIS_TEXT, fontSize: 12 }}
@@ -102,7 +107,10 @@ export function TrendChart({
             />
             <Tooltip
               cursor={{ stroke: CHART_PRIMARY, strokeDasharray: "4 4" }}
-              formatter={(value) => [formatCurrency(Number(value)), valueLabel]}
+              formatter={(value) => [
+                formatCurrency(Number(value), currency),
+                valueLabel,
+              ]}
               labelFormatter={(key) => formatKey(String(key))}
               contentStyle={tooltipContentStyle}
             />
@@ -140,7 +148,7 @@ export function TrendChart({
           {data.map((point) => (
             <tr key={point.key}>
               <th scope="row">{formatKey(point.key)}</th>
-              <td>{formatCurrency(point.value)}</td>
+              <td>{formatCurrency(point.value, currency)}</td>
             </tr>
           ))}
         </tbody>

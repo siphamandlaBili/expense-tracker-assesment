@@ -99,6 +99,7 @@ export function GoalDrawer({
       {editing ? (
         <EditBudgetForm
           initial={goal.monthlyBudget}
+          currency={currency}
           onCancel={() => setEditing(false)}
           onSave={async (amount) => {
             await onSaveBudget(amount);
@@ -131,10 +132,12 @@ export function GoalDrawer({
 
 function EditBudgetForm({
   initial,
+  currency,
   onCancel,
   onSave,
 }: {
   initial: number;
+  currency?: string;
   onCancel: () => void;
   onSave: (amount: number) => Promise<unknown>;
 }) {
@@ -156,7 +159,7 @@ function EditBudgetForm({
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pending) return;
-    const parsed = parseBudget(budget);
+    const parsed = parseBudget(budget, currency);
     if (parsed.error) {
       setError(parsed.error);
       return;
@@ -175,6 +178,7 @@ function EditBudgetForm({
     <form noValidate onSubmit={handleSubmit} className="mt-6 space-y-4">
       <BudgetField
         inputRef={inputRef}
+        currency={currency}
         value={budget}
         onChange={(value) => {
           setBudget(value);

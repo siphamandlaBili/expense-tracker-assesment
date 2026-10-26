@@ -5,7 +5,7 @@ import {
   within,
 } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { fakeApi, http } from "../../test/fakeApi";
+import { fakeApi, http, profileInCurrency } from "../../test/fakeApi";
 import App from "../../App";
 import { customersApi } from "../../api/customers";
 import { formatCurrency } from "../../lib/format";
@@ -53,6 +53,18 @@ describe("Overview: customer with data", () => {
     expect(
       within(stats).getByText(formatCurrency(summary.averageTransaction)),
     ).toBeInTheDocument();
+  });
+
+  it("shows every amount in the profile currency, the trend chart included", async () => {
+    fakeApi.use(profileInCurrency("USD"));
+    renderOverview(sessions.active);
+
+    const stats = panel(/at a glance/i);
+    expect((await within(stats).findAllByText(/^$/)).length).toBeGreaterThan(0);
+    const trend = panel(/monthly spending trend/i);
+    expect((await within(trend).findAllByText(/^$/)).length).toBeGreaterThan(0);
+    // Once the profile has loaded, nothing is left in rand.
+    await waitFor(() => expect(screen.queryAllByText(/^-?Rd/)).toHaveLength(0));
   });
 
   it("shows the same 30-day total in the stats and the category chart", async () => {

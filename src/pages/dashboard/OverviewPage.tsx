@@ -58,6 +58,7 @@ export function OverviewPage() {
       <div className="grid gap-5 xl:grid-cols-2">
         <SpendingTrendCard
           query={trends}
+          currency={currency}
           action={
             <span className="text-sm text-body">
               {t("dashboard.trend.months3")}

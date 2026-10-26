@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { fakeApi, http } from "../../test/fakeApi";
+import { fakeApi, http, profileInCurrency } from "../../test/fakeApi";
 import App from "../../App";
 import { customersApi } from "../../api/customers";
 import { formatCurrency } from "../../lib/format";
@@ -155,6 +155,24 @@ describe("Goals page", () => {
     );
     expect(budget).toHaveAccessibleDescription(
       "Enter an amount like 1500 or 1500.50.",
+    );
+  });
+
+  it("takes the budget in the profile currency", async () => {
+    fakeApi.use(profileInCurrency("USD"));
+    const { user } = renderGoals();
+    await findCard("Groceries");
+    await user.click(screen.getByRole("button", { name: "Create goal" }));
+    const dialog = screen.getByRole("dialog", { name: "Create a goal" });
+
+    expect(within(dialog).getByText("$")).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText("Monthly budget"), "$500");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Create goal" }),
+    );
+
+    expect(await findCard("Transportation")).toHaveTextContent(
+      "Monthly budget: $500.00",
     );
   });
 

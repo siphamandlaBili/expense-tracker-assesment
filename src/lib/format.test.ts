@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  currencySymbol,
   firstName,
   formatAxisCurrency,
   formatChange,
@@ -27,6 +28,15 @@ describe("format", () => {
 
   it("formats axis labels without decimals", () => {
     expect(formatAxisCurrency(12000)).toBe("R12,000");
+    expect(formatAxisCurrency(12000, "USD")).toBe("$12,000");
+  });
+
+  it.each([
+    ["ZAR", "R"],
+    ["USD", "$"],
+    ["EUR", "€"],
+  ])("uses %s for the symbol %s", (currency, symbol) => {
+    expect(currencySymbol(currency)).toBe(symbol);
   });
 
   it.each([
