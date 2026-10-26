@@ -20,7 +20,8 @@ type DrawerProps = {
   onClose: () => void;
   /** For tests: the backdrop has no role to find it by. */
   backdropTestId?: string;
-  children: ReactNode;
+  /** Content, or a function given `close` (slides out like the ✕). */
+  children: ReactNode | ((close: () => void) => ReactNode);
 };
 
 /**
@@ -153,7 +154,7 @@ export function Drawer({
 
         <div className="flex-1 overflow-y-auto">
           <div ref={contentRef} className="px-5 pb-6">
-            {children}
+            {typeof children === "function" ? children(requestClose) : children}
           </div>
         </div>
       </div>

@@ -197,7 +197,7 @@ describe("Goals page", () => {
     );
   });
 
-  it("edits a goal's budget inside the drawer", async () => {
+  it("edits a goal's budget in the drawer, then closes it", async () => {
     const { user } = renderGoals();
     const drawer = await openGoal(user, "Groceries");
 
@@ -213,14 +213,18 @@ describe("Goals page", () => {
       within(drawer).getByRole("button", { name: "Save changes" }),
     );
 
-    // The drawer stays open and shows the new figures.
-    expect(
-      await within(drawer).findByText("spent of R2,500.00"),
-    ).toBeInTheDocument();
-    expect(
-      within(drawer).getByRole("button", { name: "Edit budget" }),
-    ).toBeInTheDocument();
+    // Back to the goals: the card shows the new budget, focus returns to it
+    // and screen readers hear that the save worked.
+    await waitFor(() => expect(drawer).not.toBeInTheDocument());
     expect(card("Groceries")).toHaveTextContent("Monthly budget: R2,500.00");
+    expect(
+      within(card("Groceries")).getByRole("button", {
+        name: "Groceries, view details",
+      }),
+    ).toHaveFocus();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Groceries budget updated",
+    );
   });
 
   it("validates the budget when editing in the drawer", async () => {

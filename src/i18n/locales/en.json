@@ -285,7 +285,8 @@
       "used": "Budget used",
       "daysLeft": "Days left this month",
       "edit": "Edit budget",
-      "delete": "Delete goal"
+      "delete": "Delete goal",
+      "saved": "{{category}} budget updated"
     }
   },
   "profile": {

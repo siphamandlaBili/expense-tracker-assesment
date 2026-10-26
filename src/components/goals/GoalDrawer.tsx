@@ -19,15 +19,19 @@ type GoalDrawerProps = {
   icon: string;
   currency?: string;
   onClose: () => void;
-  /** Saves a new monthly budget; the drawer shows a message if it rejects. */
+  /**
+   * Saves a new monthly budget. The drawer closes once it resolves, or shows
+   * a message if it rejects.
+   */
   onSaveBudget: (monthlyBudget: number) => Promise<unknown>;
   /** Asks to delete (the page confirms on top of the drawer). */
   onDelete: () => void;
 };
 
 /**
- * A goal's full details. "Edit budget" edits in place (the figures update
- * once saved); "Delete goal" asks the page to confirm.
+ * A goal's full details. "Edit budget" edits in place and closes the drawer
+ * once saved (the goal's card shows the new figures); "Delete goal" asks the
+ * page to confirm.
  */
 export function GoalDrawer({
   goal,
@@ -47,84 +51,88 @@ export function GoalDrawer({
       closeLabel={t("goals.drawer.close")}
       onClose={onClose}
     >
-      <div className="flex flex-col items-center text-center">
-        <CategoryBadge category={goal.category} icon={icon} />
-        <p className="mt-2 text-lg font-semibold text-heading">
-          {goal.category}
-        </p>
-        <div className="mt-1">
-          <GoalStatusBadge status={goal.status} />
-        </div>
-        <p className="mt-4 text-3xl font-bold text-heading">
-          {formatCurrency(goal.currentSpent, currency)}
-        </p>
-        <p className="text-sm text-body">
-          {t("goals.drawer.spentOf", {
-            amount: formatCurrency(goal.monthlyBudget, currency),
-          })}
-        </p>
-      </div>
+      {(close) => (
+        <>
+          <div className="flex flex-col items-center text-center">
+            <CategoryBadge category={goal.category} icon={icon} />
+            <p className="mt-2 text-lg font-semibold text-heading">
+              {goal.category}
+            </p>
+            <div className="mt-1">
+              <GoalStatusBadge status={goal.status} />
+            </div>
+            <p className="mt-4 text-3xl font-bold text-heading">
+              {formatCurrency(goal.currentSpent, currency)}
+            </p>
+            <p className="text-sm text-body">
+              {t("goals.drawer.spentOf", {
+                amount: formatCurrency(goal.monthlyBudget, currency),
+              })}
+            </p>
+          </div>
 
-      <div className="mt-5">
-        <GoalProgress goal={goal} />
-      </div>
+          <div className="mt-5">
+            <GoalProgress goal={goal} />
+          </div>
 
-      <DrawerDetails
-        items={[
-          {
-            label: t("goals.drawer.budget"),
-            value: formatCurrency(goal.monthlyBudget, currency),
-          },
-          {
-            label: t("goals.drawer.spent"),
-            value: formatCurrency(goal.currentSpent, currency),
-          },
-          remaining >= 0
-            ? {
-                label: t("goals.drawer.remaining"),
-                value: formatCurrency(remaining, currency),
-              }
-            : {
-                label: t("goals.drawer.overBy"),
-                value: formatCurrency(-remaining, currency),
+          <DrawerDetails
+            items={[
+              {
+                label: t("goals.drawer.budget"),
+                value: formatCurrency(goal.monthlyBudget, currency),
               },
-          { label: t("goals.drawer.used"), value: goalPercent(goal) },
-          {
-            label: t("goals.drawer.daysLeft"),
-            value: goal.daysRemaining,
-          },
-        ]}
-      />
+              {
+                label: t("goals.drawer.spent"),
+                value: formatCurrency(goal.currentSpent, currency),
+              },
+              remaining >= 0
+                ? {
+                    label: t("goals.drawer.remaining"),
+                    value: formatCurrency(remaining, currency),
+                  }
+                : {
+                    label: t("goals.drawer.overBy"),
+                    value: formatCurrency(-remaining, currency),
+                  },
+              { label: t("goals.drawer.used"), value: goalPercent(goal) },
+              {
+                label: t("goals.drawer.daysLeft"),
+                value: goal.daysRemaining,
+              },
+            ]}
+          />
 
-      {editing ? (
-        <EditBudgetForm
-          initial={goal.monthlyBudget}
-          currency={currency}
-          onCancel={() => setEditing(false)}
-          onSave={async (amount) => {
-            await onSaveBudget(amount);
-            setEditing(false);
-          }}
-        />
-      ) : (
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={onDelete}
-            className={`${secondaryButtonClass} flex-1 border border-slate-200`}
-          >
-            <LuTrash2 className="size-4" aria-hidden />
-            {t("goals.drawer.delete")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className={`${primaryButtonClass} flex-1`}
-          >
-            <LuPencil className="size-4" aria-hidden />
-            {t("goals.drawer.edit")}
-          </button>
-        </div>
+          {editing ? (
+            <EditBudgetForm
+              initial={goal.monthlyBudget}
+              currency={currency}
+              onCancel={() => setEditing(false)}
+              onSave={async (amount) => {
+                await onSaveBudget(amount);
+                close();
+              }}
+            />
+          ) : (
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={onDelete}
+                className={`${secondaryButtonClass} flex-1 border border-slate-200`}
+              >
+                <LuTrash2 className="size-4" aria-hidden />
+                {t("goals.drawer.delete")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className={`${primaryButtonClass} flex-1`}
+              >
+                <LuPencil className="size-4" aria-hidden />
+                {t("goals.drawer.edit")}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </Drawer>
   );
