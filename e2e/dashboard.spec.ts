@@ -25,7 +25,6 @@ test("customer with data sees their overview", async ({ page }) => {
   await signIn(page, USERS.active);
 
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByText("Premium Account")).toBeVisible();
   const recent = page.getByRole("region", { name: "Recent transactions" });
   await expect(recent.getByRole("row")).toHaveCount(5);
   await expect(

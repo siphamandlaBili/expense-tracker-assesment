@@ -71,7 +71,6 @@
       "subtitle": "Here's your spending overview for your Moya Bank account."
     },
     "accountType": {
-      "label": "Account type",
       "premium": "Premium Account",
       "standard": "Standard Account",
       "business": "Business Account"

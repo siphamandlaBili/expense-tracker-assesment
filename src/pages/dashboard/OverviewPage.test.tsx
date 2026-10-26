@@ -25,7 +25,7 @@ const amountCell = (row: HTMLElement) =>
   within(row).getAllByRole("cell").at(-1) as HTMLElement;
 
 describe("Overview: customer with data", () => {
-  it("greets the customer and shows their account type", async () => {
+  it("greets the customer by first name", async () => {
     renderOverview(sessions.active);
 
     expect(
@@ -34,7 +34,6 @@ describe("Overview: customer with data", () => {
         name: /good (morning|afternoon|evening), john/i,
       }),
     ).toBeInTheDocument();
-    expect(await screen.findByText("Premium Account")).toBeInTheDocument();
   });
 
   it("shows the 30-day summary figures from the API", async () => {
