@@ -21,8 +21,6 @@
   --animate-sheet-out: sheet-out 200ms ease-in forwards;
   --animate-panel-in: panel-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-panel-out: panel-out 200ms ease-in forwards;
-  --animate-nav-in: nav-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
-  --animate-nav-out: nav-out 200ms ease-in forwards;
   --animate-menu-in: menu-in 200ms ease-out;
   --animate-menu-out: menu-out 200ms ease-in forwards;
   --animate-fade-in: fade-in 260ms ease-out;
@@ -46,16 +44,6 @@
   @keyframes panel-out {
     to {
       transform: translateX(100%);
-    }
-  }
-  @keyframes nav-in {
-    from {
-      transform: translateX(-100%);
-    }
-  }
-  @keyframes nav-out {
-    to {
-      transform: translateX(-100%);
     }
   }
   @keyframes menu-in {

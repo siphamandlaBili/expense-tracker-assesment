@@ -81,10 +81,11 @@ test("signing out returns to the landing page and protects the dashboard", async
 }) => {
   await signIn(page, USERS.active);
 
+  // Phones sign out from the account menu; wider screens from the sidebar.
   if (isMobile) {
-    await page.getByRole("button", { name: "Open navigation" }).click();
+    await page.getByRole("button", { name: "Signed in as John Doe" }).click();
   }
-  await page.getByRole("button", { name: "Sign out" }).last().click();
+  await page.getByRole("button", { name: "Sign out" }).click();
   await expect(
     page.getByRole("heading", { level: 1, name: /understand your spending/i }),
   ).toBeVisible();
@@ -201,15 +202,12 @@ test("bottom sheet fits its content and can be dragged", async ({
   await expect(sheet).toBeHidden();
 });
 
-test("profile page shows the customer's details", async ({
-  page,
-  isMobile,
-}) => {
+test("profile page shows the customer's details", async ({ page }) => {
   await signIn(page, USERS.active);
-  if (isMobile) {
-    await page.getByRole("button", { name: "Open navigation" }).click();
-  }
-  await page.getByRole("link", { name: "Profile" }).last().click();
+  await page
+    .getByRole("navigation", { name: "Dashboard" })
+    .getByRole("link", { name: "Profile" })
+    .click();
 
   const card = page.getByRole("region", { name: "Account details" });
   await expect(card.getByText("john.doe@email.com")).toBeVisible();
@@ -219,17 +217,13 @@ test("profile page shows the customer's details", async ({
   expect(results.violations).toEqual([]);
 });
 
-test("goals page opens a goal's details in the drawer", async ({
-  page,
-  isMobile,
-}) => {
+test("goals page opens a goal's details in the drawer", async ({ page }) => {
   await signIn(page, USERS.active);
-  if (isMobile) {
-    await page.getByRole("button", { name: "Open navigation" }).click();
-  }
-  await page.getByRole("link", { name: "Goals" }).last().click();
+  await page.getByRole("link", { name: "Goals" }).click();
 
-  const card = page.getByRole("article", { name: "Groceries" });
+  // Goals live in the shared database and visitors can change them, so open
+  // whichever goal is listed first rather than a particular one.
+  const card = page.getByRole("article").first();
   await expect(card).toBeVisible();
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
@@ -242,4 +236,56 @@ test("goals page opens a goal's details in the drawer", async ({
   await expect(
     drawer.getByRole("button", { name: "Delete goal" }),
   ).toBeVisible();
+});
+
+test("phones navigate with a bottom bar that never covers the page", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "The bottom bar is the phone layout");
+  await signIn(page, USERS.active);
+
+  await expect(page.getByRole("complementary")).toHaveCount(0);
+  const bar = page.getByRole("navigation", { name: "Dashboard" });
+  const viewport = page.viewportSize()!;
+  const barBox = (await bar.boundingBox())!;
+  expect(barBox.y + barBox.height).toBeCloseTo(viewport.height, 0);
+
+  // The active page is primary blue, icon and label alike.
+  const goals = bar.getByRole("link", { name: "Goals" });
+  await goals.click();
+  await expect(goals).toHaveAttribute("aria-current", "page");
+  await expect(goals).toHaveCSS("color", "rgb(0, 51, 160)");
+  await expect(goals.locator("svg")).toHaveCSS("color", "rgb(0, 51, 160)");
+  await expect(bar.getByRole("link", { name: "Overview" })).not.toHaveCSS(
+    "color",
+    "rgb(0, 51, 160)",
+  );
+
+  // Scrolled to the end, the last of the content sits above the bar.
+  await page.getByRole("link", { name: "Overview" }).click();
+  await expect(
+    page.getByRole("region", { name: "Recent transactions" }).getByRole("row"),
+  ).toHaveCount(5);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  const lastCard = page.locator("main section").last();
+  const cardBox = (await lastCard.boundingBox())!;
+  const barTop = (await bar.boundingBox())!.y;
+  expect(cardBox.y + cardBox.height).toBeLessThanOrEqual(barTop);
+});
+
+test("tablets and up navigate with the sidebar", async ({ page, isMobile }) => {
+  test.skip(isMobile, "The sidebar is the tablet and desktop layout");
+  await page.setViewportSize({ width: 800, height: 1000 });
+  await signIn(page, USERS.active);
+
+  const nav = page.getByRole("navigation", { name: "Dashboard" });
+  await expect(nav).toHaveCount(1);
+  // The one navigation is the sidebar, with no bottom bar.
+  await expect(
+    page.getByRole("complementary").getByRole("navigation"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("complementary").getByRole("link", { name: "Overview" }),
+  ).toHaveAttribute("aria-current", "page");
 });

@@ -56,9 +56,7 @@
       "transactions": "Transactions",
       "goals": "Goals",
       "profile": "Profile",
-      "signOut": "Sign out",
-      "openMenu": "Open navigation",
-      "closeMenu": "Close navigation"
+      "signOut": "Sign out"
     },
     "topBar": {
       "notifications": "Notifications",

@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { chooseOption, openApp } from "./fixtures.ts";
 
-async function openSpending(page: Page, isMobile: boolean) {
+async function openSpending(page: Page) {
   await openApp(page);
   await page.getByRole("button", { name: /sign in to continue/i }).click();
   const dialog = page.getByRole("dialog", { name: "Sign in" });
@@ -11,9 +11,7 @@ async function openSpending(page: Page, isMobile: boolean) {
   await dialog.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("John");
 
-  if (isMobile)
-    await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.getByRole("link", { name: "Spending" }).last().click();
+  await page.getByRole("link", { name: "Spending" }).click();
   await expect(
     page.getByRole("heading", { level: 1, name: "Spending analysis" }),
   ).toBeVisible();
@@ -24,9 +22,8 @@ const categoryRows = (page: Page) =>
 
 test("spending page loads, filters by period and category", async ({
   page,
-  isMobile,
 }) => {
-  await openSpending(page, isMobile);
+  await openSpending(page);
   await expect(categoryRows(page).first()).toBeVisible();
 
   await page.getByRole("button", { name: "90 days" }).click();
@@ -48,11 +45,8 @@ test("spending page loads, filters by period and category", async ({
   await expect(categoryRows(page)).toHaveCount(1);
 });
 
-test("spending tables fit without scrolling sideways", async ({
-  page,
-  isMobile,
-}) => {
-  await openSpending(page, isMobile);
+test("spending tables fit without scrolling sideways", async ({ page }) => {
+  await openSpending(page);
   const table = page
     .getByRole("region", { name: "Category breakdown" })
     .getByRole("table");
@@ -68,11 +62,8 @@ test("spending tables fit without scrolling sideways", async ({
   expect(pageOverflow).toBeLessThanOrEqual(0);
 });
 
-test("spending page has no accessibility violations", async ({
-  page,
-  isMobile,
-}) => {
-  await openSpending(page, isMobile);
+test("spending page has no accessibility violations", async ({ page }) => {
+  await openSpending(page);
   await expect(categoryRows(page).first()).toBeVisible();
   await expect(
     page
