@@ -13,23 +13,42 @@ import { formatChange, formatCount, formatCurrency } from "../../lib/format";
 import { ChangeIndicator } from "./ChangeIndicator";
 import { ErrorState, Skeleton } from "./Panel";
 
+// Each card's colour (App.css tokens): the icon block and a darker shade
+// for the title, readable on white.
+const TONES = {
+  sky: { block: "bg-accent-sky", title: "text-accent-sky-text" },
+  navy: { block: "bg-accent-navy", title: "text-accent-navy" },
+  red: { block: "bg-accent-red", title: "text-accent-red-text" },
+  grey: { block: "bg-body", title: "text-body" },
+} as const;
+
 type StatCardProps = {
   icon: IconType;
+  tone: keyof typeof TONES;
   label: string;
   value: ReactNode;
   footer: ReactNode;
 };
 
-function StatCard({ icon: Icon, label, value, footer }: StatCardProps) {
+/**
+ * A summary figure as a row, after the Capitec app's account list: a
+ * coloured icon block on the left edge, the label and its context, and the
+ * figure on the right.
+ */
+function StatCard({ icon: Icon, tone, label, value, footer }: StatCardProps) {
   return (
-    <div className="flex gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5">
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
-        <Icon className="size-5" aria-hidden />
+    <div className="flex min-h-20 overflow-hidden rounded-lg border border-slate-200/80 bg-white">
+      <span
+        className={`flex w-16 shrink-0 items-center justify-center text-white ${TONES[tone].block}`}
+      >
+        <Icon className="size-6" strokeWidth={2.5} aria-hidden />
       </span>
-      <div className="min-w-0">
-        <p className="text-sm text-body">{label}</p>
-        <p className="mt-1 text-2xl font-bold text-heading">{value}</p>
-        <div className="mt-1 text-xs text-body">{footer}</div>
+      <div className="flex min-w-0 flex-1 items-center gap-3 py-3 pr-4 pl-4">
+        <div className="min-w-0 flex-1">
+          <p className={`font-semibold ${TONES[tone].title}`}>{label}</p>
+          <div className="mt-0.5 text-xs text-body">{footer}</div>
+        </div>
+        <p className="shrink-0 text-lg font-bold text-heading">{value}</p>
       </div>
     </div>
   );
@@ -38,10 +57,10 @@ function StatCard({ icon: Icon, label, value, footer }: StatCardProps) {
 function ChangeFooter({ value }: { value: number }) {
   const { t } = useTranslation();
   return (
-    <p className="flex flex-wrap items-center gap-1">
+    <span className="flex flex-wrap items-center gap-1">
       <ChangeIndicator value={value} />
       <span>{t("dashboard.stats.vsPrevious")}</span>
-    </p>
+    </span>
   );
 }
 
@@ -56,7 +75,7 @@ export function StatCards({
 
   if (query.isError) {
     return (
-      <div className="rounded-2xl border border-slate-200/80 bg-white">
+      <div className="rounded-lg border border-slate-200/80 bg-white">
         <ErrorState onRetry={() => void query.refetch()} />
       </div>
     );
@@ -64,16 +83,14 @@ export function StatCards({
 
   const summary = query.data;
   const value = (render: (data: SpendingSummary) => string) =>
-    summary ? render(summary) : <Skeleton className="h-7 w-24" />;
+    summary ? render(summary) : <Skeleton className="h-6 w-20" />;
   const footer = (render: (data: SpendingSummary) => ReactNode) =>
     summary ? render(summary) : <Skeleton className="h-3 w-28" />;
 
   return (
-    <div
-      aria-busy={query.isPending}
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-    >
+    <div aria-busy={query.isPending} className="grid gap-3 sm:grid-cols-2">
       <StatCard
+        tone="sky"
         icon={LuWallet}
         label={t("dashboard.stats.totalSpent")}
         value={value((s) => formatCurrency(s.totalSpent, currency))}
@@ -82,6 +99,7 @@ export function StatCards({
         ))}
       />
       <StatCard
+        tone="navy"
         icon={LuArrowLeftRight}
         label={t("dashboard.stats.transactionCount")}
         value={value((s) => formatCount(s.transactionCount))}
@@ -90,12 +108,14 @@ export function StatCards({
         ))}
       />
       <StatCard
+        tone="red"
         icon={LuCoins}
         label={t("dashboard.stats.averageTransaction")}
         value={value((s) => formatCurrency(s.averageTransaction, currency))}
         footer={footer(() => t("dashboard.stats.perTransaction"))}
       />
       <StatCard
+        tone="grey"
         icon={LuTrendingUp}
         label={t("dashboard.stats.spendingChange")}
         value={value((s) => formatChange(s.comparedToPrevious.spentChange))}

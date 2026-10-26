@@ -9,12 +9,18 @@
   --color-surface: #f5f8fd;
   /* Background of the signed-in dashboard. */
   --color-dashboard: #f7f7f7;
+  /* Overview summary cards, after the Capitec app. The blocks behind the
+     white icons are at least 3:1; the -text shades meet 4.5:1 on white. */
+  --color-accent-sky: #0099d8;
+  --color-accent-sky-text: #00739f;
+  --color-accent-navy: #1d3a6b;
+  --color-accent-red: #e2231a;
+  --color-accent-red-text: #c41a12;
 
   /* Motion. Every "out" animation lasts 200ms: EXIT_ANIMATION_MS in
      src/lib/motion.ts must match.
      - sheet:  transaction drawer on phones (bottom sheet, slides up/down)
      - panel:  transaction drawer from md up (slides in/out from the right)
-     - nav:    dashboard navigation drawer (slides in/out from the left)
      - menu:   landing page menu (fades and drops down)
      - fade:   the dimmed backdrop behind any of them */
   --animate-sheet-in: sheet-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
