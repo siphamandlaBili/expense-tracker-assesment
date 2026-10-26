@@ -1,4 +1,4 @@
-import type { Transaction } from "../api/schemas";
+import type { Transaction } from "../../api/schemas";
 import { addUtcDays, DAY_MS, startOfUtcDay } from "./dates";
 import { categoriesFixture, merchantsByCategory } from "./fixtures";
 

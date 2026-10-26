@@ -1,8 +1,7 @@
 import { waitFor } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
-import { CUSTOMER_ID } from "../mocks/fixtures";
-import { server } from "../mocks/server";
+import { fakeApi, http } from "../test/fakeApi";
+import { CUSTOMER_ID } from "../test/fakeApi/fixtures";
 import { renderHookWithProviders } from "../test/render";
 import { useCreateGoal, useDeleteGoal, useUpdateGoal } from "./mutations";
 import {
@@ -114,9 +113,9 @@ describe("goal mutations", () => {
   });
 
   it("useDeleteGoal restores the goal if the request fails", async () => {
-    server.use(
+    fakeApi.use(
       http.delete("*/goals/:goalId", () =>
-        HttpResponse.json({ message: "Server error" }, { status: 500 }),
+        Response.json({ message: "Server error" }, { status: 500 }),
       ),
     );
     const { result } = await renderWithGoals(() => useDeleteGoal(CUSTOMER_ID));

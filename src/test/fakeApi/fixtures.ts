@@ -1,4 +1,4 @@
-import type { CategoryMeta, Filters } from "../api/schemas";
+import type { CategoryMeta, Filters } from "../../api/schemas";
 
 /** Goals as stored; progress fields are derived from transactions. */
 export type StoredGoal = {

@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, configure } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { resetDb } from "../mocks/db";
-import { server } from "../mocks/server";
+import { afterEach, beforeAll, beforeEach, vi } from "vitest";
+import { preloadDashboardPages } from "../app/pages";
+import { fakeApi, fakeFetch, resetDb } from "./fakeApi";
 import { TEST_NOW } from "./constants";
 import "./i18n";
 
@@ -19,22 +19,19 @@ class ResizeObserverStub {
 globalThis.ResizeObserver ??=
   ResizeObserverStub as unknown as typeof ResizeObserver;
 
-// Any request without a matching MSW handler fails the test.
-beforeAll(() => {
-  server.listen({ onUnhandledFrame: "error" });
-});
+// Pages are code-split; loading them up front lets tests assert on a page
+// as soon as it renders, without waiting out the Suspense fallback.
+beforeAll(() => preloadDashboardPages());
 
 beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
-  resetDb({ now: TEST_NOW, fresh: true });
+  // Every API call goes to the fake API (src/test/fakeApi), never the network.
+  vi.stubGlobal("fetch", fakeFetch);
+  resetDb({ now: TEST_NOW });
 });
 
 afterEach(() => {
   cleanup();
-  server.resetHandlers();
-});
-
-afterAll(() => {
-  server.close();
+  fakeApi.reset();
 });

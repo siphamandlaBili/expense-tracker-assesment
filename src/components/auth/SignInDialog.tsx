@@ -1,7 +1,8 @@
-import { useId, useRef, useState, type SubmitEvent } from "react";
+import { useEffect, useId, useRef, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { LuArrowRight, LuEye, LuEyeOff } from "react-icons/lu";
 import { ApiError } from "../../api/client";
+import { preloadDashboardPages } from "../../app/pages";
 import { inputClass } from "../dashboard/formStyles";
 import { Modal } from "../dashboard/Modal";
 import {
@@ -47,6 +48,12 @@ function SignInDialogPanel({
   const [submitError, setSubmitError] = useState<
     "signIn.errors.invalidCredentials" | "signIn.errors.generic" | null
   >(null);
+
+  // The dashboard is where signing in leads: fetch its code while the
+  // customer types, so it shows without a loading step.
+  useEffect(() => {
+    void preloadDashboardPages();
+  }, []);
 
   const updateField = (field: keyof SignInValues, value: string) => {
     const next = { ...values, [field]: value };

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LuMenu, LuShieldCheck, LuX } from "react-icons/lu";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.webp";
 import { useAnimatedPresence } from "../../lib/motion";
 
 const NAV_LINKS = [
@@ -22,7 +22,13 @@ export function Header({ onSignIn }: HeaderProps) {
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
         <a href="#home" className="shrink-0">
-          <img src={logo} alt={t("brand.logoAlt")} className="h-8 w-auto" />
+          <img
+            src={logo}
+            width={525}
+            height={96}
+            alt={t("brand.logoAlt")}
+            className="h-8 w-auto"
+          />
         </a>
 
         <nav aria-label={t("nav.primary")} className="hidden flex-1 lg:block">

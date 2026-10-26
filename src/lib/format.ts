@@ -20,9 +20,28 @@ export function formatCurrency(amount: number, currency = "ZAR") {
   return `${sign}R${twoDecimals.format(Math.abs(amount))}`;
 }
 
-/** Axis labels: whole rand, no decimals (R12,000). */
-export function formatAxisCurrency(amount: number) {
+/** Axis labels: whole units, no decimals (R12,000, $12,000). */
+export function formatAxisCurrency(amount: number, currency = "ZAR") {
+  if (currency !== "ZAR") {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
   return `R${wholeNumber.format(amount)}`;
+}
+
+/** The symbol shown before amounts: R for rand, otherwise $, € and so on. */
+export function currencySymbol(currency = "ZAR") {
+  if (currency === "ZAR") return "R";
+  const parts = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+  }).formatToParts(0);
+  return parts.find((part) => part.type === "currency")?.value ?? currency;
 }
 
 export function formatCount(value: number) {

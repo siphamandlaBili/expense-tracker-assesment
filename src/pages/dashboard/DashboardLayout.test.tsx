@@ -1,8 +1,4 @@
-import {
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import App from "../../App";
 import { readSession } from "../../auth/session";
@@ -13,8 +9,10 @@ import { renderWithProviders } from "../../test/render";
 /** The account menu panel, once open. */
 const accountMenu = () => screen.findByRole("navigation", { name: "Account" });
 
+// jsdom has no matchMedia, so the layout renders as on a phone: the bottom
+// bar rather than the sidebar (see "shows the sidebar from tablet width up").
 const dashboardNav = () =>
-  screen.getAllByRole("navigation", { name: "Dashboard" })[0];
+  screen.getByRole("navigation", { name: "Dashboard" });
 
 describe("Dashboard layout", () => {
   it("sends signed-out visitors back to the landing page", () => {
@@ -28,7 +26,7 @@ describe("Dashboard layout", () => {
     ).toBeInTheDocument();
   });
 
-  it("marks the current section in the side navigation", async () => {
+  it("navigates from the bottom bar and marks the current page", async () => {
     const { user } = renderWithProviders(<App />, {
       route: "/dashboard",
       session: sessions.active,
@@ -168,26 +166,9 @@ describe("Dashboard layout", () => {
     expect(await accountMenu()).toBeVisible();
   });
 
-  it("signs out and returns to the landing page", async () => {
-    const { user } = renderWithProviders(<App />, {
-      route: "/dashboard",
-      session: sessions.active,
-    });
-
-    await user.click(screen.getAllByRole("button", { name: "Sign out" })[0]);
-
-    expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: /understand your spending/i,
-      }),
-    ).toBeInTheDocument();
-    expect(readSession()).toBeNull();
-  });
-
-  it("slides the navigation drawer out before removing it", async () => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
+  it("shows the sidebar from tablet width up, and signs out from it", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query === "(min-width: 48rem)",
       addEventListener: () => {},
       removeEventListener: () => {},
     }));
@@ -196,53 +177,22 @@ describe("Dashboard layout", () => {
       session: sessions.active,
     });
 
-    await user.click(screen.getByRole("button", { name: /open navigation/i }));
-    const drawerNav = screen.getAllByRole("navigation", {
-      name: "Dashboard",
-    })[1];
-
-    await user.click(screen.getByRole("button", { name: /close navigation/i }));
-
-    // Still on screen while it slides out, then removed.
-    expect(drawerNav).toBeInTheDocument();
-    await waitForElementToBeRemoved(drawerNav);
-  });
-
-  it("opens and closes the mobile navigation drawer", async () => {
-    const { user } = renderWithProviders(<App />, {
-      route: "/dashboard",
-      session: sessions.active,
-    });
-    const menuButton = screen.getByRole("button", { name: /open navigation/i });
-
-    await user.click(menuButton);
+    // One navigation only: the sidebar, with no bottom bar.
     expect(
-      screen.getAllByRole("navigation", { name: "Dashboard" }),
-    ).toHaveLength(2);
+      within(screen.getByRole("complementary")).getByRole("navigation", {
+        name: "Dashboard",
+      }),
+    ).toBe(dashboardNav());
 
-    await user.keyboard("{Escape}");
-    expect(
-      screen.getAllByRole("navigation", { name: "Dashboard" }),
-    ).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Sign out" }));
 
-    await user.click(menuButton);
-    await user.click(screen.getByRole("button", { name: /close navigation/i }));
     expect(
-      screen.getAllByRole("navigation", { name: "Dashboard" }),
-    ).toHaveLength(1);
-
-    // Choosing a link closes the drawer too.
-    await user.click(menuButton);
-    const drawerNav = screen.getAllByRole("navigation", {
-      name: "Dashboard",
-    })[1];
-    await user.click(within(drawerNav).getByRole("link", { name: "Profile" }));
-    expect(
-      screen.getAllByRole("navigation", { name: "Dashboard" }),
-    ).toHaveLength(1);
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Profile" }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: /understand your spending/i,
+      }),
     ).toBeInTheDocument();
+    expect(readSession()).toBeNull();
   });
 
   it("redirects unknown URLs to the landing page", () => {

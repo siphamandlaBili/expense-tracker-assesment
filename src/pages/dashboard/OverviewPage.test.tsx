@@ -4,13 +4,12 @@ import {
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
+import { fakeApi, http, profileInCurrency } from "../../test/fakeApi";
 import App from "../../App";
 import { customersApi } from "../../api/customers";
 import { formatCurrency } from "../../lib/format";
-import { ACTIVE_USER, ERROR_USER } from "../../mocks/fixtures";
-import { server } from "../../mocks/server";
+import { ACTIVE_USER, ERROR_USER } from "../../test/fakeApi/fixtures";
 import { expectNoA11yViolations } from "../../test/axe";
 import { sessions } from "../../test/factories";
 import { renderWithProviders } from "../../test/render";
@@ -26,7 +25,7 @@ const amountCell = (row: HTMLElement) =>
   within(row).getAllByRole("cell").at(-1) as HTMLElement;
 
 describe("Overview: customer with data", () => {
-  it("greets the customer and shows their account type", async () => {
+  it("greets the customer by first name", async () => {
     renderOverview(sessions.active);
 
     expect(
@@ -35,7 +34,6 @@ describe("Overview: customer with data", () => {
         name: /good (morning|afternoon|evening), john/i,
       }),
     ).toBeInTheDocument();
-    expect(await screen.findByText("Premium Account")).toBeInTheDocument();
   });
 
   it("shows the 30-day summary figures from the API", async () => {
@@ -55,6 +53,18 @@ describe("Overview: customer with data", () => {
     expect(
       within(stats).getByText(formatCurrency(summary.averageTransaction)),
     ).toBeInTheDocument();
+  });
+
+  it("shows every amount in the profile currency, the trend chart included", async () => {
+    fakeApi.use(profileInCurrency("USD"));
+    renderOverview(sessions.active);
+
+    const stats = panel(/at a glance/i);
+    expect((await within(stats).findAllByText(/^$/)).length).toBeGreaterThan(0);
+    const trend = panel(/monthly spending trend/i);
+    expect((await within(trend).findAllByText(/^$/)).length).toBeGreaterThan(0);
+    // Once the profile has loaded, nothing is left in rand.
+    await waitFor(() => expect(screen.queryAllByText(/^-?Rd/)).toHaveLength(0));
   });
 
   it("shows the same 30-day total in the stats and the category chart", async () => {
@@ -264,9 +274,9 @@ describe("Overview: spending service failing", () => {
       name: /try again/i,
     });
 
-    server.use(
+    fakeApi.use(
       http.get(`*/customers/${ERROR_USER.customerId}/transactions`, () =>
-        HttpResponse.json({
+        Response.json({
           transactions: [],
           pagination: { total: 0, limit: 4, offset: 0, hasMore: false },
         }),

@@ -24,8 +24,7 @@ type RequestOptions<T> = {
 };
 
 function buildUrl(path: string, query: Record<string, QueryValue> = {}) {
-  // Resolving against the page origin keeps relative bases working in both
-  // the browser and Node-based tests.
+  // Resolving against the page origin also allows a relative base (/api).
   const url = new URL(`${API_BASE_URL}${path}`, window.location.origin);
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined && value !== "") {

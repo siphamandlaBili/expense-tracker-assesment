@@ -16,6 +16,8 @@ export type GoalFormValues = { category: string; monthlyBudget: number };
 type GoalFormDialogProps = {
   /** Categories that don't have a goal yet. */
   categories: CategoryMeta[];
+  /** The profile currency, for the budget field. */
+  currency?: string;
   onClose: () => void;
   /** Saves; the dialog shows a message if the promise rejects. */
   onSubmit: (values: GoalFormValues) => Promise<unknown>;
@@ -24,6 +26,7 @@ type GoalFormDialogProps = {
 /** Create a goal: a category without one, and a monthly budget. */
 export function GoalFormDialog({
   categories,
+  currency,
   onClose,
   onSubmit,
 }: GoalFormDialogProps) {
@@ -38,7 +41,7 @@ export function GoalFormDialog({
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pending) return;
-    const parsed = parseBudget(budget);
+    const parsed = parseBudget(budget, currency);
     if (parsed.error) {
       setError(parsed.error);
       return;
@@ -95,6 +98,7 @@ export function GoalFormDialog({
 
           <BudgetField
             inputRef={budgetRef}
+            currency={currency}
             value={budget}
             onChange={(value) => {
               setBudget(value);

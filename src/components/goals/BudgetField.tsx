@@ -1,5 +1,6 @@
 import { useId, type Ref } from "react";
 import { useTranslation } from "react-i18next";
+import { currencySymbol } from "../../lib/format";
 import { inputClass } from "../dashboard/formStyles";
 import type { GoalFormErrorKey } from "./goalSchema";
 
@@ -9,18 +10,25 @@ type BudgetFieldProps = {
   /** A budget problem to show under the field (replaces the hint). */
   error?: GoalFormErrorKey | null;
   inputRef?: Ref<HTMLInputElement>;
+  /** The profile currency; its symbol prefixes the input. */
+  currency?: string;
 };
 
-/** "Monthly budget" input with an R prefix (create dialog, drawer edit). */
+/**
+ * "Monthly budget" input with the currency symbol as a prefix (create
+ * dialog, drawer edit).
+ */
 export function BudgetField({
   value,
   onChange,
   error,
   inputRef,
+  currency,
 }: BudgetFieldProps) {
   const { t } = useTranslation();
   const id = useId();
   const hintId = `${id}-hint`;
+  const symbol = currencySymbol(currency);
 
   return (
     <div>
@@ -35,7 +43,7 @@ export function BudgetField({
           aria-hidden
           className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-body"
         >
-          R
+          {symbol}
         </span>
         <input
           ref={inputRef}
@@ -46,7 +54,9 @@ export function BudgetField({
           onChange={(event) => onChange(event.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={hintId}
-          className={`${inputClass(Boolean(error))} pl-9`}
+          // Clear of the prefix, however wide the symbol (R, $, CHF).
+          style={{ paddingLeft: `calc(1.75rem + ${symbol.length}ch)` }}
+          className={inputClass(Boolean(error))}
         />
       </div>
       <p

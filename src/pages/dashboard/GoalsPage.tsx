@@ -36,6 +36,8 @@ export function GoalsPage() {
   // stays open until the goal is actually deleted.
   const [viewing, setViewing] = useState<Goal | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // Read out after a save closes the drawer, which had shown the result.
+  const [announcement, setAnnouncement] = useState("");
   // Latest figures for the open goal (e.g. after saving a new budget).
   const viewed =
     viewing &&
@@ -53,6 +55,9 @@ export function GoalsPage() {
 
   return (
     <div className="space-y-5">
+      <p role="status" className="sr-only">
+        {announcement}
+      </p>
       <PageHeader
         title={t("goals.title")}
         subtitle={t("goals.subtitle")}
@@ -106,9 +111,12 @@ export function GoalsPage() {
           icon={iconFor(viewed.category)}
           currency={currency}
           onClose={() => setViewing(null)}
-          onSaveBudget={(monthlyBudget) =>
-            updateGoal.mutateAsync({ goalId: viewed.id, monthlyBudget })
-          }
+          onSaveBudget={async (monthlyBudget) => {
+            await updateGoal.mutateAsync({ goalId: viewed.id, monthlyBudget });
+            setAnnouncement(
+              t("goals.drawer.saved", { category: viewed.category }),
+            );
+          }}
           onDelete={() => setConfirmingDelete(true)}
         />
       )}
@@ -127,6 +135,7 @@ export function GoalsPage() {
       {creating && (
         <GoalFormDialog
           categories={available}
+          currency={currency}
           onClose={() => setCreating(false)}
           onSubmit={async (values) => {
             await createGoal.mutateAsync(values);

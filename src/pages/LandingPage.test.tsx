@@ -1,9 +1,8 @@
 import { screen, within } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import { fakeApi, http } from "../test/fakeApi";
 import App from "../App";
-import { EMPTY_USER } from "../mocks/fixtures";
-import { server } from "../mocks/server";
+import { EMPTY_USER } from "../test/fakeApi/fixtures";
 import { expectNoA11yViolations } from "../test/axe";
 import { buildSignInValues, sessions } from "../test/factories";
 import { renderWithProviders } from "../test/render";
@@ -197,9 +196,9 @@ describe("LandingPage sign in", () => {
   });
 
   it("shows a generic error when sign in fails for another reason", async () => {
-    server.use(
+    fakeApi.use(
       http.post("*/auth/sign-in", () =>
-        HttpResponse.json({ message: "Down" }, { status: 503 }),
+        Response.json({ message: "Down" }, { status: 503 }),
       ),
     );
     const { user } = setup();

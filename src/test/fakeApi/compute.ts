@@ -8,7 +8,7 @@ import type {
   SortBy,
   SpendingSummary,
   Transaction,
-} from "../api/schemas";
+} from "../../api/schemas";
 import {
   addUtcDays,
   DAY_MS,

@@ -67,6 +67,7 @@ export function SpendingPage() {
       <div className="grid gap-5 xl:grid-cols-3">
         <SpendingTrendCard
           query={trends}
+          currency={currency}
           className="xl:col-span-2"
           action={
             <TrendMonthsSelect

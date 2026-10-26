@@ -52,3 +52,30 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: spending-insights:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test the running container
+        run: |
+          docker run -d --name app -p 8080:8080 spending-insights:ci
+          for i in $(seq 1 30); do curl -fsS http://localhost:8080/healthz && break; sleep 1; done
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+          # Client-side routes fall back to the app shell.
+          curl -fsS http://localhost:8080/dashboard/goals | grep -q '<div id="root">'
+          curl -fsSI http://localhost:8080/ | grep -qi '^content-security-policy:'
+          curl -fsS http://localhost:8080/robots.txt | grep -q 'Disallow: /dashboard'
+      - name: Container logs
+        if: failure()
+        run: docker logs app

@@ -1,11 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import { fakeApi, http, profileInCurrency } from "../../test/fakeApi";
 import App from "../../App";
 import { customersApi } from "../../api/customers";
 import { formatCurrency } from "../../lib/format";
-import { ACTIVE_USER } from "../../mocks/fixtures";
-import { server } from "../../mocks/server";
+import { ACTIVE_USER } from "../../test/fakeApi/fixtures";
 import { expectNoA11yViolations } from "../../test/axe";
 import { sessions } from "../../test/factories";
 import { chooseOption } from "../../test/interactions";
@@ -159,10 +158,28 @@ describe("Goals page", () => {
     );
   });
 
+  it("takes the budget in the profile currency", async () => {
+    fakeApi.use(profileInCurrency("USD"));
+    const { user } = renderGoals();
+    await findCard("Groceries");
+    await user.click(screen.getByRole("button", { name: "Create goal" }));
+    const dialog = screen.getByRole("dialog", { name: "Create a goal" });
+
+    expect(within(dialog).getByText("$")).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText("Monthly budget"), "$500");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Create goal" }),
+    );
+
+    expect(await findCard("Transportation")).toHaveTextContent(
+      "Monthly budget: $500.00",
+    );
+  });
+
   it("explains a duplicate goal reported by the API", async () => {
-    server.use(
+    fakeApi.use(
       http.post("*/customers/:customerId/goals", () =>
-        HttpResponse.json({ message: "Exists" }, { status: 409 }),
+        Response.json({ message: "Exists" }, { status: 409 }),
       ),
     );
     const { user } = renderGoals();
@@ -180,7 +197,7 @@ describe("Goals page", () => {
     );
   });
 
-  it("edits a goal's budget inside the drawer", async () => {
+  it("edits a goal's budget in the drawer, then closes it", async () => {
     const { user } = renderGoals();
     const drawer = await openGoal(user, "Groceries");
 
@@ -196,14 +213,18 @@ describe("Goals page", () => {
       within(drawer).getByRole("button", { name: "Save changes" }),
     );
 
-    // The drawer stays open and shows the new figures.
-    expect(
-      await within(drawer).findByText("spent of R2,500.00"),
-    ).toBeInTheDocument();
-    expect(
-      within(drawer).getByRole("button", { name: "Edit budget" }),
-    ).toBeInTheDocument();
+    // Back to the goals: the card shows the new budget, focus returns to it
+    // and screen readers hear that the save worked.
+    await waitFor(() => expect(drawer).not.toBeInTheDocument());
     expect(card("Groceries")).toHaveTextContent("Monthly budget: R2,500.00");
+    expect(
+      within(card("Groceries")).getByRole("button", {
+        name: "Groceries, view details",
+      }),
+    ).toHaveFocus();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Groceries budget updated",
+    );
   });
 
   it("validates the budget when editing in the drawer", async () => {
@@ -236,6 +257,10 @@ describe("Goals page", () => {
     });
     // The drawer stays open underneath; focus starts on the safe choice.
     expect(drawer).toBeInTheDocument();
+    // Cancel is the way out; there is no ✕ as well.
+    expect(
+      within(dialog).queryByRole("button", { name: /close/i }),
+    ).not.toBeInTheDocument();
     expect(
       within(dialog).getByRole("button", { name: "Cancel" }),
     ).toHaveFocus();

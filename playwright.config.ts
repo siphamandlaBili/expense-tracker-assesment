@@ -10,6 +10,9 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
   reporter: isCI ? [["github"], ["html", { open: "never" }]] : "list",
+  // Pages load data from the hosted API over the internet, which can be slow
+  // on a cold start.
+  expect: { timeout: 10_000 },
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
