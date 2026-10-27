@@ -12,6 +12,10 @@ transaction, monthly budget goals and their profile.
 
 ## Demo accounts
 
+To try the app without installing anything, open the live site at
+https://expense-tracker-data-mftp.vercel.app/ and sign in with any of these
+accounts. They also work when you run the app yourself.
+
 | Account number   | PIN     | Customer       | Shows                                          |
 | ---------------- | ------- | -------------- | ---------------------------------------------- |
 | `12345678901234` | `12345` | John Doe       | Full data: two years of transactions and goals |
