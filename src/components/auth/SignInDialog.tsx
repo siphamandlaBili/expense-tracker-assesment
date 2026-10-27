@@ -152,7 +152,7 @@ function SignInDialogPanel({
               name="pin"
               type={showPin ? "text" : "password"}
               inputMode="numeric"
-              autoComplete="off"
+              autoComplete="new-password"
               maxLength={PIN_LENGTH}
               value={values.pin}
               onChange={(event) =>

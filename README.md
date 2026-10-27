@@ -1,235 +1,258 @@
 # Moya Bank: Customer Spending Insights
 
-A dashboard where a bank customer sees where their money goes: spending
-summary, categories, monthly trends, transactions, budget goals and profile.
+## About
 
-Built with React 19, TypeScript, Vite, Tailwind CSS, TanStack Query, React
-Router, zod and i18next. Data comes from the hosted [spending API](#api), a
-separate service; see the [demo sign-in](#demo-sign-in) accounts.
+A web dashboard where a bank customer can see where their money goes: a
+summary of recent spending, monthly trends, spending by category, every
+transaction, monthly budget goals and their profile.
 
-## Requirements
+- Built using React 19, TypeScript, Vite, Tailwind CSS, TanStack
+  Query, React Router, zod and i18next. Responsive from phone to desktop, with
+  accessibility checks in the test suite.
 
-- **Docker** to build and run the container, or
-- **Node.js 24** and npm to run locally (`.nvmrc` pins the version).
+## Demo accounts
 
-## Run with Docker
+| Account number   | PIN     | Customer       | Shows                                          |
+| ---------------- | ------- | -------------- | ---------------------------------------------- |
+| `12345678901234` | `12345` | John Doe       | Full data: two years of transactions and goals |
+| `23456789012345` | `23456` | Thandi Nkosi   | Empty states: a new customer with no activity  |
+| `34567890123456` | `34567` | Pieter van Wyk | Error states: the spending service is "down"   |
 
-```sh
-docker build -t spending-insights .
-docker run --rm -p 8080:8080 spending-insights
-```
+## Planning
 
-Open http://localhost:8080 and sign in with account `12345678901234`, PIN
-`12345`.
+The wireframes and planning were done by hand on paper, as drawings and
+handwritten notes, before the app was built. They're shared as they are, so
+some of the writing may be hard to read.
 
-The image is built in stages: dependencies, then a production build, then
-only the static files served by nginx as a non-root user. The image includes:
+- **Wireframes and planning:**
+  [view the document](https://drive.google.com/file/d/1gPh6Ta6EZ8BUskdqThnIanZRGM5rDdvF/view?usp=sharing)
 
-- **SPA routing:** any client-side route (`/dashboard/goals`, …) serves the
-  app.
-- **Caching:** hashed files under `/assets` are cached for a year;
-  `index.html` is always revalidated.
-- **Security headers:** a Content Security Policy, `X-Frame-Options`,
-  `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy`. They
-  are set in `docker/security-headers.inc`.
-- **Health check:** `GET /healthz` returns `200 ok` and Docker's
-  `HEALTHCHECK` uses it.
+# How to run
 
-Run the lint, typecheck and unit tests inside Docker (no local Node needed):
+### Get the code
 
-```sh
-docker build --target test .
-```
+Choose one:
 
-To use a different API, pass its URL as a build argument (Vite bakes it into
-the bundle at build time) and add its origin to `connect-src` in
-`docker/security-headers.inc`:
+- **Clone it:**
+  ```sh
+  git clone https://github.com/siphamandlaBili/expense-tracker-assesment.git
+  cd expense-tracker-assesment
+  ```
+- **Fork it:** click **Fork** at the top of the
+  [repository page](https://github.com/siphamandlaBili/expense-tracker-assesment),
+  then clone your fork the same way, with your username in the URL.
+- **Download it:** on the repository page, click **Code**, then **Download
+  ZIP**. Unzip it and open a terminal in the unzipped folder.
 
-```sh
-docker build -t spending-insights \
-  --build-arg VITE_API_BASE_URL=https://api.example.com/api .
-```
+### Locally
 
-## Run locally
+1. Install **Node.js 24** from https://nodejs.org, which includes npm. Check
+   it with `node --version`.
+2. In the project folder, install the dependencies:
+   ```sh
+   npm ci
+   ```
+3. Start the app:
+   ```sh
+   npm run dev
+   ```
+4. Open http://localhost:5173 and sign in, for example as John Doe with
+   account number `12345678901234` and PIN `12345` (all accounts are in
+   [Demo accounts](#demo-accounts)).
 
-```sh
-npm ci
-npm run dev        # http://localhost:5173, with hot reload
-```
+No `.env` file is needed: the app uses the hosted API by default. To point it
+at a different backend, copy `.env.example` to `.env` and change
+`VITE_API_BASE_URL`, then restart the dev server.
 
-To run the production build locally:
+To run the production build instead of the dev server:
 
 ```sh
 npm run build
-npm run preview    # http://localhost:4173
+npm run preview
 ```
 
-Measure performance (Lighthouse) against `npm run preview`, not the dev
-server. The dev server serves unbundled, unminified code and scores far
-lower.
+Then open http://localhost:4173.
 
-## Test
+### With Docker
+
+Requires Docker (Docker Desktop on Windows and macOS). Run these from the
+project folder (see [Get the code](#get-the-code)).
+
+Build the image:
+
+```sh
+docker build -t spending-insights .
+```
+
+Run it:
+
+```sh
+docker run --rm -p 8080:8080 spending-insights
+```
+
+Open http://localhost:8080.
+
+# How to Test
+
+### Landing page (`/`)
+
+What you'll see:
+
+- A hero section with the headline, a **Sign in to continue** button and the
+  hero image.
+- Four feature cards: spending trends, category insights, transaction history
+  and goals.
+- On phones, the header links collapse into a menu.
+
+### Sign in
+
+How to test:
+
+- Click **Sign in to continue**.
+- Sign in with a demo account.
+
+What you'll see:
+
+- Only digits can be typed: up to 14 for the account number and 5 for the PIN.
+- A clear message for an empty or wrong-length field, and "Incorrect account
+  number or PIN" for a wrong PIN.
+- After signing in, the Overview page. The session lasts until the tab is
+  closed.
+
+### Overview (`/dashboard`)
+
+How to test:
+
+- Look over the page after signing in.
+- Hover a slice of the category donut (desktop).
+- Click a row in **Recent transactions**(view details of the transaction), then **View all**.
+
+What you'll see:
+
+- A greeting with your first name, which changes with the time of day.
+- Four summary cards for the last 30 days: total spent, transaction count,
+  average transaction and spending change, compared with the previous 30
+  days. An increase is red and a decrease green, since more spending is bad
+  news.
+- A trend chart of the last 3 months.
+- A category donut, with a legend showing each category's amount and share.
+- The four most recent transactions. Clicking one opens its details: from the
+  side on desktop, or as a sheet from the bottom on phones that you can drag
+  taller or swipe away. **View all** opens the Transactions page.
+
+### Spending (`/dashboard/spending`)
+
+How to test:
+
+- Switch between the **7 days**, **30 days**, **90 days** and **1 year**
+  buttons.
+- Change the trend length (3 to 24 months).
+- In **Category breakdown**, toggle the category chips and pick custom
+  **From** and **To** dates.
+
+What you'll see:
+
+- The period buttons update the summary (total, transactions, average, top
+  category, change vs the previous period) and the category breakdown.
+- The trend chart redraws for the chosen number of months.
+- The chips show or hide categories in the breakdown. Custom dates replace
+  the period for that card only.
+- Filters are kept in the URL, so a reload or a shared link keeps the same
+  view.
+
+### Transactions (`/dashboard/transactions`)
+
+How to test:
+
+- Filter by a category, pick a date range, and change **Sort by**.
+- Change **Rows per page** (10, 20 or 50), and use the previous and next page
+  buttons.
+- Click anywhere on a transaction row to open its details, then close them.
+- Click **Clear filters**.
+
+What you'll see:
+
+- A paged table of date, merchant, category, payment method and amount, with
+  "Showing 1–10 of …" and the page number. On phones, the least important
+  columns are dropped so nothing scrolls sideways.
+- Every filter change updates the table straight away and goes back to page
+  1, and the totals update.
+- Every row is clickable, with a hover highlight. Clicking one opens a details
+  drawer with the full transaction (merchant and amount, then date and time,
+  category, description, payment method and reference): from the side on
+  desktop, or as a sheet from the bottom on phones that you can drag taller
+  or swipe away.
+- **Clear filters** returns to all transactions, newest first.
+- The filters and page are saved in the URL, so a reload or shared link shows
+  the same view.
+
+### Goals (`/dashboard/goals`)
+
+How to test:
+
+- Click **Create goal**, choose a category, and enter a monthly budget. Try an
+  empty value or `0` first.
+- Click a goal card, then **Edit budget**, change the amount and save.
+- Open a goal and click **Delete goal**, then **Cancel**, then delete it for
+  real.
+
+What you'll see:
+
+- One card per goal with this month's spending, a progress bar, days left and
+  a status: **On track**, **Warning** (80% or more) or **Over budget**.
+- Only categories without a goal are offered when creating one, and an
+  invalid budget shows a message under the field.
+- After saving an edit, the drawer closes and the card shows the new budget.
+- Deleting asks for confirmation over the drawer. **Cancel** returns to the
+  drawer, and confirming removes the goal.
+
+### Profile (`/dashboard/profile`)
+
+How to test:
+
+- Open **Profile** from the navigation or the avatar menu.
+
+What you'll see:
+
+- Your name, email and account type, plus total spent since joining, customer
+  ID, member since date and currency (e.g. "South African Rand (ZAR)").
+
+### Empty and error states
+
+How to test:
+
+- Sign out, then sign in as **Thandi Nkosi** (`23456789012345` / `23456`).
+- Sign out, then sign in as **Pieter van Wyk** (`34567890123456` / `34567`).
+
+What you'll see:
+
+- **Thandi:** every page loads with a friendly empty message instead of
+  charts and tables, such as "No transactions yet" and "You haven't set any
+  goals yet".
+- **Pieter:** the profile and navigation work, but every spending card shows
+  "We couldn't load this" with a **Try again** button.
+
+### Currency
+
+- The currency comes from the API: each customer's profile has a `currency`
+  code (all demo accounts use `ZAR`). Nothing in the app assumes rand.
+
+## Automated tests
 
 ```sh
 npm run lint            # ESLint, fails on any warning
-npm run typecheck       # app, tests and e2e
-npm run test:coverage   # unit and component tests, 80% coverage gate
+npm run typecheck       # TypeScript, app and tests
+npm run test:coverage   # Unit and component tests, 80% coverage minimum
 npx playwright install chromium   # first time only
-npm run test:e2e        # Playwright on desktop and mobile, production build
+npm run test:e2e        # Playwright, desktop and phone, against the production build
 ```
 
-See [Testing](#testing) for how the tests are organised and written.
-
-## Scripts
-
-| Command                 | What it does                                  |
-| ----------------------- | --------------------------------------------- |
-| `npm run dev`           | Start the dev server                          |
-| `npm run build`         | Typecheck and build for production            |
-| `npm run preview`       | Serve the production build                    |
-| `npm run lint`          | Lint (fails on any warning)                   |
-| `npm run typecheck`     | Typecheck app, tests, and e2e                 |
-| `npm run format:check`  | Check formatting with Prettier                |
-| `npm test`              | Unit/component tests in watch mode            |
-| `npm run test:coverage` | Unit/component tests once, with coverage gate |
-| `npm run test:e2e`      | Playwright tests against the production build |
-| `npm run test:e2e:ui`   | Playwright in interactive UI mode             |
-
-## Project structure
-
-```
-src/
-  api/          zod schemas, fetch client, React Query hooks and mutations
-  app/          app-wide providers and the QueryClient
-  auth/         session, AuthProvider, RequireAuth
-  components/
-    charts/     TrendChart, CategoryDonut, shared chart colours
-    dashboard/  shared dashboard UI: Panel + QueryContent (loading, error and
-                empty states), PageHeader, ChangeIndicator, CategoryBadge,
-                StatCards, sidebar, drawer
-    spending/   pieces used only by the Spending page
-    landing/    landing page sections
-  lib/          pure helpers (formatting, filters, series bucketing) and hooks
-  pages/        one component per route
-  test/         render helpers, factories, axe helper, fake API for tests
-```
-
-Conventions that keep pages consistent:
-
-- **Page heading:** every page starts with `PageHeader`.
-- **Cards:** every card is a `Panel`, and data inside it renders through
-  `QueryContent`, so loading, error (with retry) and empty states look and
-  behave the same everywhere.
-- **Charts:** use the chart components in `components/charts`. They take data
-  and labels, not API responses, so any page can reuse them.
-- **Text:** all visible text lives in `src/i18n/locales/en.json`.
-
-## API
-
-The app calls the spending API, a separate service:
-
-- **URL:** https://expense-tracker-data-qypy.vercel.app/api
-- **Code:** https://github.com/siphamandlaBili/expense-tracker-data (Express,
-  MongoDB for goals, hosted on Vercel)
-
-To use another API, set `VITE_API_BASE_URL` at build time (see
-`src/api/config.ts`).
-
-The app talks to it through typed React Query hooks:
-
-- `src/api/queries.ts`: `useProfile`, `useSpendingSummary`,
-  `useSpendingByCategory`, `useSpendingTrends`, `useTransactions`, `useGoals`,
-  `useFilters`.
-- `src/api/mutations.ts`: `useCreateGoal`, `useUpdateGoal`, `useDeleteGoal`.
-- Every response is validated against the zod schemas in `src/api/schemas.ts`.
-
-### Demo sign-in
-
-| Account number   | PIN     | Customer | Shows                                         |
-| ---------------- | ------- | -------- | --------------------------------------------- |
-| `12345678901234` | `12345` | 12345    | Full data: two years of transactions, 2 goals |
-| `23456789012345` | `23456` | 23456    | Empty states: a new customer with no activity |
-| `34567890123456` | `34567` | 34567    | Error states: spending endpoints return 500   |
-
-Sign-in calls `POST /api/auth/sign-in`; any other combination returns 401.
-The session is kept in `sessionStorage`, so it ends when the tab closes. Goals
-are stored by the API, so goal changes are shared by everyone using a demo
-account.
-
-### Spending page filters
-
-Each control only offers what its endpoint accepts:
-
-| Control                    | Endpoint               | Parameters                    |
-| -------------------------- | ---------------------- | ----------------------------- |
-| Period buttons             | `/spending/summary`    | `period`                      |
-|                            | `/spending/categories` | `period`                      |
-| Trend length picker        | `/spending/trends`     | `months` (3, 6, 12, 24)       |
-| Category card custom dates | `/spending/categories` | `startDate`, `endDate`        |
-| Category chips             | none (display filter)  | filters the categories result |
-
-The period presets and the category chips come from `/filters`. Filters are
-kept in the URL (`?period=90d&months=24&from=…&to=…&categories=Dining`).
-
-### Transactions page filters
-
-| Control           | `/transactions` parameter           |
-| ----------------- | ----------------------------------- |
-| Category dropdown | `category` (one category)           |
-| Date picker       | `startDate`, `endDate`              |
-| Sort dropdown     | `sortBy` (date or amount, asc/desc) |
-| Rows per page     | `limit` (10, 20 or 50)              |
-| Previous / next   | `offset`; totals from `pagination`  |
-
-Any filter change returns to page 1; a page past the end moves to the last
-page. The view is kept in the URL (`?category=Dining&page=2&size=10`).
-
-## Testing
-
-### Layers
-
-- **Unit and component tests** (Vitest, jsdom, Testing Library) sit next to the
-  code they test as `*.test.ts(x)`.
-- **End-to-end tests** (Playwright) live in `e2e/` and run against the
-  production build on a desktop and a mobile viewport, calling the live API.
-  Use them for anything jsdom cannot do: layout, CSS, focus styles, scroll
-  locking, colour contrast.
-
-### Writing component tests
-
-- Render with `renderWithProviders()` from `src/test/render.tsx`, not plain
-  `render()`. It wraps the component in React Query (fresh client per test, no
-  retries), the router (`route` option sets the URL) and a test i18n instance,
-  and returns a ready `user` from `userEvent.setup()`.
-- Query by role and label (`getByRole`, `getByLabelText`). Use `getByTestId`
-  only for elements with no accessible role.
-- Build test data with the factories in `src/test/factories.ts` and override
-  only the fields the test cares about.
-- Call `expectNoA11yViolations(container)` from `src/test/axe.ts` for any new
-  page or interactive component.
-
-### Network
-
-Unit tests never reach the network. `fetch` is replaced by a fake API
-(`src/test/fakeApi`) that behaves like the real one over seeded data with a
-fixed date, so results are identical every run.
-
-- Override a route in a single test with `fakeApi.use(http.get(...))`;
-  overrides reset after each test.
-- Check what was sent with `fakeApi.onRequest(...)`.
-- A request with no matching route **fails**.
-
-### Translations
-
-- Translation keys are type-checked against `src/i18n/locales/en.json`, so a
-  typo is a compile error.
-- In tests, a missing key throws instead of rendering the raw key.
-
-### Quality gates
-
-- **Pre-commit:** lint and format staged files, run only the tests related to
-  them, typecheck.
-- **CI (`.github/workflows/ci.yml`):** typecheck, lint, format, unit tests with
-  an 80% coverage threshold, build, Playwright e2e, and a Docker build that
-  starts the container and checks it serves the app. The HTML coverage report
-  and, on failure, the Playwright report are uploaded as artifacts.
+- **Unit and component tests** (Vitest and Testing Library) never touch the
+  network: a fake API in `src/test/fakeApi` serves seeded data for a fixed
+  date, so results are the same on every run. They include automated
+  accessibility checks (axe).
+- **End-to-end tests** (Playwright) run the real app against the live API on
+  a desktop and a phone viewport, covering layout, navigation, drawers and
+  accessibility.
+- **CI** (`.github/workflows/ci.yml`) runs all of the above on every push to
+  `main` and every pull request, and builds and smoke-tests the Docker image.

@@ -13,3 +13,4 @@ Dockerfile
 .dockerignore
 *.log
 *.local
+.env

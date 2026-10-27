@@ -1,0 +1,9 @@
+# Keep LF line endings on every machine (Prettier and CI expect LF),
+# whatever core.autocrlf is set to locally.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.webp binary
+*.avif binary
+*.ico binary
